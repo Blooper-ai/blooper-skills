@@ -43,6 +43,15 @@ except ImportError:  # pragma: no cover
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = REPO_ROOT / "schema" / "skill-manifest.schema.json"
 SKILLS_ROOT = REPO_ROOT / "skills"
+TOOL_COSTS_PATH = REPO_ROOT / "tool_costs.json"
+# Reflection-turn headroom we add when computing the minimum sensible
+# max_provider_calls budget for a manifest. The BE counter ticks per LLM
+# tool-use turn, not per real provider call — so a skill that calls one
+# cost-5 tool also burns ~1-2 thinking turns. Authors keep guessing low;
+# this lint catches the misconfiguration before publish. Set on 2026-06-09
+# after observing every test run of crop-video / trim-video / render-timeline
+# pause on a budget_extension approval on its first useful turn.
+_BUDGET_REFLECTION_HEADROOM = 2
 
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 
@@ -72,6 +81,95 @@ REJECTED_LICENSE_PATTERNS = (
     re.compile(r"^Proprietary$", re.IGNORECASE),
     re.compile(r"^.*-NC(-.*)?$", re.IGNORECASE),  # any non-commercial CC variant
 )
+
+
+def _load_tool_costs() -> dict[str, int]:
+    """Read the snapshot of backend tool costs.
+
+    The snapshot is regenerated from the live BE registry whenever the
+    cost numbers change (see README — there's a ``make snapshot-tool-costs``
+    convention). If the file is missing we return an empty dict and
+    silently skip the budget lint; CI will surface the missing snapshot
+    via a separate guard if we want to make it required later.
+    """
+    if not TOOL_COSTS_PATH.exists():
+        return {}
+    try:
+        with TOOL_COSTS_PATH.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    out: dict[str, int] = {}
+    for slug, cost in data.items():
+        if isinstance(slug, str) and isinstance(cost, int):
+            out[slug] = cost
+    return out
+
+
+def _budget_check(
+    data: dict, tool_costs: dict[str, int]
+) -> tuple[list[str], list[str]]:
+    """Lint manifest.budget.max_provider_calls against the sum of tool
+    costs.
+
+    Why this matters: the backend budget counter ticks per LLM tool-use
+    turn, not per real provider call. A manifest that lists a single
+    cost-5 tool (e.g. ``render_timeline``) but sets
+    ``max_provider_calls: 1`` pauses on a ``budget_extension`` approval
+    before the skill can finish even its happy path. The fix is to set
+    a budget that covers ``sum(tool.cost) + ~2 reflection turns``.
+
+    Returns ``(errors, warnings)``. We treat any tool not in the
+    snapshot permissively (cost 0) — better than blocking on a stale
+    snapshot during a registry change.
+    """
+    errors: list[str] = []
+    warnings: list[str] = []
+    if not tool_costs:
+        return errors, warnings  # no snapshot → skip lint
+
+    tools = data.get("tools") or []
+    if not isinstance(tools, list):
+        return errors, warnings  # schema validation will flag this
+
+    budget = data.get("budget") or {}
+    if not isinstance(budget, dict):
+        return errors, warnings
+
+    cap_raw = budget.get("max_provider_calls")
+    if not isinstance(cap_raw, int):
+        return errors, warnings  # schema covers the type error
+
+    sum_known = 0
+    unknown: list[str] = []
+    for t in tools:
+        if not isinstance(t, str):
+            continue
+        if t in tool_costs:
+            sum_known += tool_costs[t]
+        else:
+            unknown.append(t)
+
+    minimum_recommended = sum_known + _BUDGET_REFLECTION_HEADROOM
+    if cap_raw < minimum_recommended:
+        warnings.append(
+            f"budget.max_provider_calls={cap_raw} is below recommended "
+            f"minimum {minimum_recommended} (sum of tool costs "
+            f"{sum_known} + {_BUDGET_REFLECTION_HEADROOM} reflection-turn "
+            f"headroom). Every run will pause on a budget_extension "
+            f"approval. Bump the budget or remove unused tools."
+        )
+
+    if unknown:
+        warnings.append(
+            f"tools {sorted(unknown)} are not in tool_costs.json "
+            f"(treated as cost 0 for the budget lint). Regenerate the "
+            f"snapshot or check the tool name."
+        )
+
+    return errors, warnings
 
 
 def _check_license(value) -> str | None:
@@ -160,7 +258,9 @@ def _format_pointer(error) -> str:
 
 
 def validate_one(
-    manifest_path: Path, validator: Draft202012Validator
+    manifest_path: Path,
+    validator: Draft202012Validator,
+    tool_costs: dict[str, int] | None = None,
 ) -> ManifestReport:
     report = ManifestReport(path=manifest_path)
     try:
@@ -263,6 +363,16 @@ def validate_one(
             f"{manifest_path.parent}: README.md missing (every skill needs a public README)"
         )
 
+    # Budget-vs-tool-cost lint: catch manifests whose
+    # ``budget.max_provider_calls`` is below the sum of the costs of the
+    # tools they declare. The backend counter ticks per LLM tool-use
+    # turn, so a too-tight budget causes every run to pause on a
+    # ``budget_extension`` approval before useful work is done.
+    if tool_costs:
+        budget_errors, budget_warnings = _budget_check(data, tool_costs)
+        report.errors.extend(budget_errors)
+        report.warnings.extend(budget_warnings)
+
     # Soft warnings.
     if "description" not in data or not (data.get("description") or "").strip():
         report.warnings.append(f"{manifest_path}: description is empty")
@@ -323,7 +433,8 @@ def main(argv: list[str] | None = None) -> int:
         print("no manifests found under skills/")
         return 0
 
-    reports = [validate_one(m, validator) for m in manifests]
+    tool_costs = _load_tool_costs()
+    reports = [validate_one(m, validator, tool_costs) for m in manifests]
     return emit(reports, strict=args.strict)
 
 

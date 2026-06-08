@@ -125,7 +125,7 @@
     "tools": [
       "generate_storyboard_from_script"
     ],
-    "version": "2.0.0"
+    "version": "2.0.1"
   },
   {
     "applies_to": {

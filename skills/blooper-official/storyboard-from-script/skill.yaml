@@ -1,5 +1,5 @@
 slug: blooper-official/storyboard-from-script
-version: 2.0.0
+version: 2.0.1
 name: Storyboard from script
 description: >
   Run the full v2 pipeline (5 LLM stages) on a TEXT script: scene partition →
@@ -40,7 +40,13 @@ permissions:
   run: any_project_member
 
 budget:
-  max_provider_calls: 6
+  # generate_storyboard_from_script has cost=5 in the BE tools registry;
+  # the validator's budget lint (scripts/validate.py:_budget_check) flags
+  # anything below sum_of_costs + reflection headroom (~2). 8 covers the
+  # tool itself, the one reflection turn the LLM takes after the tool
+  # returns to write its summary message, and leaves headroom for an
+  # edge-case retry without bouncing onto a budget_extension approval.
+  max_provider_calls: 8
   max_minutes: 45
   max_sub_runs: 0
 
