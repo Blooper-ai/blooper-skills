@@ -1,0 +1,93 @@
+slug: blooper-official/trim-and-crop-video
+version: 1.0.0
+name: Trim and crop video
+description: >
+  Trim a VIDEO file version to a [start_sec, end_sec) window then crop
+  the trimmed result to a target aspect ratio — a one-call composition
+  of trim-video + crop-video. Runs deterministically (no LLM): two
+  ordered tool calls, the second consumes the first's new_version_id.
+  Produces two new READY FileVersions on the same file (the trim and
+  the crop); the crop is the final output and what the run card
+  surfaces.
+publisher: blooper
+kind: skill
+license: Apache-2.0
+
+applies_to:
+  file_type: ["VIDEO"]
+
+runtime: deterministic
+deterministic:
+  pipeline:
+    - id: trim
+      tool: trim_video_version
+      args:
+        # Pre-filled from context.current_version_id at run start by
+        # the run endpoint; users only paste a UUID when invoking the
+        # skill outside a video file context.
+        file_version_id: "{{ params.file_version_id }}"
+        start_sec: "{{ params.start_sec }}"
+        end_sec: "{{ params.end_sec }}"
+    - id: crop
+      tool: crop_video_version
+      args:
+        # Pipe: feed the trim's output version into the crop step.
+        # ``trim_video_version`` returns ``new_version_id`` on success;
+        # the pipeline runner resolves this template against the
+        # earlier step's result dict at run start.
+        file_version_id: "{{ steps.trim.new_version_id }}"
+        aspect: "{{ params.aspect }}"
+
+tools:
+  - trim_video_version
+  - crop_video_version
+
+params:
+  - name: file_version_id
+    label: Source video version
+    type: text
+    # The context-pin via applies_to.file_type=VIDEO + the Configure
+    # modal's prefill_from support means users almost never paste this
+    # by hand. Keep it overridable for direct-API callers.
+    optional: true
+    prefill_from: context.current_version_id
+    placeholder: uuid
+  - name: start_sec
+    label: Start (seconds)
+    type: number
+    optional: false
+  - name: end_sec
+    label: End (seconds)
+    type: number
+    optional: false
+  - name: aspect
+    label: Aspect ratio
+    type: select
+    options:
+      - "1:1"
+      - "9:16"
+      - "16:9"
+    optional: false
+
+output:
+  produces: file_versions
+  # Trim emits one version, crop emits another. The run card surfaces
+  # the latest (crop) but both are query-able from the file's version
+  # tree.
+  count: 2
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  # Deterministic pipeline runtime: budget is the sum of step tool
+  # costs (trim_video_version=1 + crop_video_version=1). No LLM, no
+  # reflection-turn headroom. The validator's _budget_check sums
+  # across deterministic step tools — see scripts/validate.py.
+  max_provider_calls: 2
+  max_minutes: 6
+  max_sub_runs: 0
+
+prompt: |
+  Deterministic pipeline — runs trim_video_version then crop_video_version, threading the trim's new_version_id into the crop's file_version_id. No LLM is invoked at run time; this prompt is only kept for the marketplace UI.

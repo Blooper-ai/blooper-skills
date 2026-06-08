@@ -108,6 +108,32 @@ def _load_tool_costs() -> dict[str, int]:
     return out
 
 
+def _deterministic_step_tools(data: dict) -> list[str] | None:
+    """Return the ordered list of tools the deterministic block will
+    invoke, or ``None`` when the manifest isn't deterministic.
+
+    Mirrors backend ``DeterministicSpec.step_tools()``: single-tool
+    sugar collapses to a one-element list; a pipeline returns one
+    entry per step in order. Used by the budget lint (sum costs) and
+    the tools-subset cross-check.
+    """
+    if data.get("runtime") != "deterministic":
+        return None
+    block = data.get("deterministic") or {}
+    if not isinstance(block, dict):
+        return []
+    if isinstance(block.get("tool"), str):
+        return [block["tool"]]
+    pipeline = block.get("pipeline")
+    if isinstance(pipeline, list):
+        out: list[str] = []
+        for step in pipeline:
+            if isinstance(step, dict) and isinstance(step.get("tool"), str):
+                out.append(step["tool"])
+        return out
+    return []
+
+
 def _budget_check(
     data: dict, tool_costs: dict[str, int]
 ) -> tuple[list[str], list[str]]:
@@ -120,6 +146,11 @@ def _budget_check(
     ``max_provider_calls: 1`` pauses on a ``budget_extension`` approval
     before the skill can finish even its happy path. The fix is to set
     a budget that covers ``sum(tool.cost) + ~2 reflection turns``.
+
+    For ``runtime: deterministic``, the sum is taken over the
+    deterministic block's actual step tools (one tool for the sugar
+    form, every pipeline step for the multi-tool form) and the
+    reflection-turn headroom is dropped — the LLM never runs.
 
     Returns ``(errors, warnings)``. We treat any tool not in the
     snapshot permissively (cost 0) — better than blocking on a stale
@@ -142,33 +173,42 @@ def _budget_check(
     if not isinstance(cap_raw, int):
         return errors, warnings  # schema covers the type error
 
+    # Pick the right pool of "tools that will run" for the cost sum.
+    # Deterministic skills only run the tools the deterministic block
+    # names; manifest.tools[] may list extras for human-readable docs.
+    # The agent-runtime case still sums over every tools[] entry — the
+    # LLM might call any of them.
+    step_tools = _deterministic_step_tools(data)
+    is_deterministic = step_tools is not None
+    cost_pool = step_tools if is_deterministic else [t for t in tools if isinstance(t, str)]
+
     sum_known = 0
     unknown: list[str] = []
-    for t in tools:
-        if not isinstance(t, str):
-            continue
+    for t in cost_pool:
         if t in tool_costs:
             sum_known += tool_costs[t]
         else:
             unknown.append(t)
 
-    # Deterministic skills skip the LLM entirely — only the one declared
-    # tool is billed, no reflection-turn headroom needed. The schema
-    # guarantees deterministic.tool is in tools[], so sum_known already
-    # accounts for it. See backend/app/skills/manifest.py:DeterministicSpec.
-    is_deterministic = data.get("runtime") == "deterministic"
+    # Deterministic skills skip the LLM entirely — only the declared
+    # tools are billed, no reflection-turn headroom needed. The
+    # backend manifest validator already guarantees every step tool
+    # appears in tools[].
     headroom = 0 if is_deterministic else _BUDGET_REFLECTION_HEADROOM
     minimum_recommended = sum_known + headroom
     if cap_raw < minimum_recommended:
         suffix = (
             "Bump the budget or remove unused tools."
             if not is_deterministic
-            else "Bump the budget or remove unused tools (deterministic runtime — no reflection-turn headroom is added)."
+            else "Bump the budget — deterministic runtime sums tool costs "
+                 "across every pipeline step, no reflection-turn headroom "
+                 "is added."
         )
         warnings.append(
             f"budget.max_provider_calls={cap_raw} is below recommended "
             f"minimum {minimum_recommended} (sum of tool costs "
-            f"{sum_known}{'' if is_deterministic else f' + {_BUDGET_REFLECTION_HEADROOM} reflection-turn headroom'}). "
+            f"{sum_known}"
+            f"{'' if is_deterministic else f' + {_BUDGET_REFLECTION_HEADROOM} reflection-turn headroom'}). "
             f"Every run will pause on a budget_extension approval. {suffix}"
         )
 

@@ -199,6 +199,26 @@
         "VIDEO"
       ]
     },
+    "description": "Trim a VIDEO file version to a [start_sec, end_sec) window then crop the trimmed result to a target aspect ratio \u2014 a one-call composition of trim-video + crop-video. Runs deterministically (no LLM): two ordered tool calls, the second consumes the first's new_version_id. Produces two new READY FileVersions on the same file (the trim and the crop); the crop is the final output and what the run card surfaces.\n",
+    "icon_url": null,
+    "license": "Apache-2.0",
+    "name": "Trim and crop video",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/trim-and-crop-video",
+    "slug": "blooper-official/trim-and-crop-video",
+    "tools": [
+      "trim_video_version",
+      "crop_video_version"
+    ],
+    "version": "1.0.0"
+  },
+  {
+    "applies_to": {
+      "file_type": [
+        "VIDEO"
+      ]
+    },
     "description": "Trim a VIDEO file version to a given [start_sec, end_sec) range. Produces a new READY FileVersion.\n",
     "icon_url": null,
     "license": "Apache-2.0",
