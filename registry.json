@@ -12,8 +12,8 @@
     "name": "Generate in all providers",
     "output_kind": "file_versions",
     "publisher": "blooper",
-    "repo_path": "skills/blooper/generate-in-all-providers",
-    "slug": "blooper/generate-in-all-providers",
+    "repo_path": "skills/community-example/generate-in-all-providers",
+    "slug": "community-example/generate-in-all-providers",
     "tools": [
       "list_available_image_providers",
       "list_available_video_providers",
@@ -40,8 +40,8 @@
     "name": "Regenerate shot",
     "output_kind": "file_versions",
     "publisher": "blooper",
-    "repo_path": "skills/blooper/regenerate-shot",
-    "slug": "blooper/regenerate-shot",
+    "repo_path": "skills/community-example/regenerate-shot",
+    "slug": "community-example/regenerate-shot",
     "tools": [
       "read_file_version",
       "generate_image",
@@ -63,12 +63,12 @@
       ]
     },
     "description": "Turn a screenplay or beat sheet into a shot-by-shot storyboard with one image per shot.",
-    "icon_url": "skills/blooper/storyboard-from-script/icon.svg",
+    "icon_url": "skills/community-example/storyboard-from-script/icon.svg",
     "name": "Storyboard from script",
     "output_kind": "file_versions",
     "publisher": "blooper",
-    "repo_path": "skills/blooper/storyboard-from-script",
-    "slug": "blooper/storyboard-from-script",
+    "repo_path": "skills/community-example/storyboard-from-script",
+    "slug": "community-example/storyboard-from-script",
     "tools": [
       "parse_script",
       "draft_shot_list",

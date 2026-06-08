@@ -1,4 +1,4 @@
-slug: blooper/regenerate-shot
+slug: community-example/regenerate-shot
 version: 1.0.0
 name: Regenerate shot
 description: Make a new version of a single shot with a tweak (style, camera, prompt edit) while keeping the rest of the storyboard locked.

@@ -1,4 +1,4 @@
-slug: blooper/storyboard-from-script
+slug: community-example/storyboard-from-script
 version: 1.0.0
 name: Storyboard from script
 description: Turn a screenplay or beat sheet into a shot-by-shot storyboard with one image per shot.

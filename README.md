@@ -52,7 +52,7 @@ Five end-to-end examples live under `skills/blooper/`. Each demonstrates a diffe
 | `blooper/crop-video` | Same shape with a `select` parameter for aspect presets. |
 | `blooper/character-emotions` | Self-verify retry loop using a vision check tool. |
 | `blooper/generate-room-from-refs` | Folder-scoped skill with `file_versions` ref input. |
-| `blooper/generate-in-all-providers` | Provider fan-out and human-in-the-loop pick. |
+| `community-example/generate-in-all-providers` | Provider fan-out and human-in-the-loop pick. |
 
 ## Docs
 

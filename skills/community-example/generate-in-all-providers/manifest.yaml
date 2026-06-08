@@ -1,4 +1,4 @@
-slug: blooper/generate-in-all-providers
+slug: community-example/generate-in-all-providers
 version: 1.0.0
 name: Generate in all providers
 description: Fan out the same image or video prompt across every connected provider and present one version per provider for the user to pick.
