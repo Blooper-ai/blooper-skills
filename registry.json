@@ -21,7 +21,7 @@
       "generate_image",
       "describe_image"
     ],
-    "version": "1.6.0"
+    "version": "1.7.0"
   },
   {
     "applies_to": {
@@ -41,7 +41,7 @@
       "get_run_context",
       "crop_video_version"
     ],
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   {
     "applies_to": {
@@ -84,12 +84,13 @@
     "repo_path": "skills/blooper-official/generate-room-from-refs",
     "slug": "blooper-official/generate-room-from-refs",
     "tools": [
+      "get_run_context",
       "generate_image",
       "list_folder_files",
       "read_file_version",
       "save_as_new_file"
     ],
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   {
     "applies_to": {
@@ -109,7 +110,7 @@
       "get_run_context",
       "render_timeline"
     ],
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   {
     "applies_to": {},
@@ -212,6 +213,6 @@
       "get_run_context",
       "trim_video_version"
     ],
-    "version": "1.0.0"
+    "version": "1.1.0"
   }
 ]

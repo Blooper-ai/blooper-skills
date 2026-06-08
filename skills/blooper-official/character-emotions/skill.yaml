@@ -1,5 +1,5 @@
 slug: blooper-official/character-emotions
-version: 1.6.0
+version: 1.7.0
 name: Character Emotions
 description: >
   Generate four expressive emotion variants of a character — saved as new
@@ -67,14 +67,20 @@ prompt: |
       parent_version_id=current_version_id    # FIRST attempt only
       label=<EmotionTitleCase>                # e.g. "Happy", "Sad", "Angry", "Surprised"
     and the prompt below — substitute <emotion> with a SHORT lowercase adjective
-    (e.g. happy, sad, angry, surprised). No ALL-CAPS, no quotes around the emotion:
+    (e.g. happy, sad, angry, surprised). No ALL-CAPS, no quotes around the emotion.
 
-      "Edit the reference image: change ONLY the cat's facial expression and a small "
-      "amount of body language so the cat now looks <emotion>. Keep the SAME single cat, "
-      "in the SAME pose, with the SAME fur colour and markings, on the SAME plain neutral "
-      "background. The output is ONE single image of ONE single cat, full body, centred. "
-      "No text, no captions, no labels. Do NOT make a character sheet, expression chart, "
-      "mood board, comparison sheet, or multi-panel layout. Single image only."
+    The character can be ANY subject (a person, a creature, a robot, an animal,
+    a stylised mascot). Describe it as "the subject" / "the character" in the
+    prompt so the model preserves identity without you having to know what it is:
+
+      "Edit the reference image: change ONLY the subject's facial expression and "
+      "a small amount of body language so the subject now looks <emotion>. Keep "
+      "the SAME single subject, in the SAME pose, with the SAME appearance, "
+      "colours, markings, hair, clothing, and accessories, on the SAME background. "
+      "The output is ONE single image of ONE single subject, framed exactly as "
+      "the reference. No text, no captions, no labels, no watermarks. Do NOT make "
+      "a character sheet, expression chart, mood board, comparison sheet, or "
+      "multi-panel layout. Single image only."
 
     The label is what the user sees in the version tree. Pass exactly the emotion name in
     Title-case ("Happy", not "happy" and not "HAPPY"). Do not include the prompt or
@@ -83,7 +89,7 @@ prompt: |
   Step 3: VERIFY each generation. After each generate_image returns, call describe_image
     on the new version_id. Inspect the description. If it mentions ANY of: grid, sheet,
     mood board, multi-panel, multiple, panels, six, four, expressions, chart, comparison,
-    several cats, multiple cats — the output regressed.
+    several subjects, multiple subjects — the output regressed.
 
     Regenerate it ONCE with this exact pair of arg changes:
       parent_version_id=<the FAILED attempt's version_id>   ← NOT current_version_id
@@ -91,7 +97,7 @@ prompt: |
       label="<EmotionTitleCase> (retry)"                   ← e.g. "Happy (retry)"
     and a hard prefix on the prompt:
       "CRITICAL: the previous attempt produced a grid/sheet of multiple expressions. "
-      "This output must be EXACTLY ONE cat in a single shot. " + the original prompt.
+      "This output must be EXACTLY ONE subject in a single shot. " + the original prompt.
 
     Why parent_version_id points at the failed attempt: it makes the retry a CHILD of the
     failed version in the file's version tree, so the lineage "this is a regeneration of

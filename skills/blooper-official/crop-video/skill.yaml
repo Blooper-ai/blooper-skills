@@ -1,5 +1,5 @@
 slug: blooper-official/crop-video
-version: 1.0.0
+version: 1.1.0
 name: Crop video
 description: >
   Crop a VIDEO file version to one of three aspect-ratio presets
@@ -39,7 +39,11 @@ permissions:
   run: any_project_member
 
 budget:
-  max_provider_calls: 1
+  # get_run_context (cost 0) + crop_video_version (cost 1) + headroom for
+  # one reflection turn. max=1 was forcing every run onto a
+  # budget_extension after the LLM's second turn — verified during QA on
+  # 2026-06-08.
+  max_provider_calls: 3
   max_minutes: 5
   max_sub_runs: 0
 

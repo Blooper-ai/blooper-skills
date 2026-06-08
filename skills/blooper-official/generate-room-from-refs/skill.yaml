@@ -1,5 +1,5 @@
 slug: blooper-official/generate-room-from-refs
-version: 1.0.0
+version: 1.1.0
 name: Generate Room from References
 description: Generate consistent room images from reference photos in this folder.
 publisher: blooper
@@ -13,6 +13,7 @@ applies_to:
   min_context_files: 1
 
 tools:
+  - get_run_context
   - generate_image
   - list_folder_files
   - read_file_version
@@ -52,6 +53,43 @@ budget:
   max_sub_runs: 0
 
 prompt: |
-  You are generating images of rooms from the user's references.
-  The user wants {{room_count}} rooms in style: {{style}}.
-  For each room, save the result with save_as_new_file() in the current folder.
+  You are generating {{room_count}} room images that stay visually consistent
+  with the user's reference photos already in this Locations folder.
+
+  Step 1: call get_run_context to learn project_id and current_folder (the
+    Locations folder we are writing into).
+
+  Step 2: call list_folder_files on the current folder. Collect every file
+    whose type=IMAGE and current_version_id is not null. Those current
+    version ids become ref_version_ids — the visual reference set that
+    every room must match.
+      HARD RULE: at least one reference image must be present. If the
+      folder has no IMAGE files with a current_version_id, surface a
+      one-line error to the user ("Locations folder has no reference
+      images — add one before running this skill.") and stop.
+
+  Step 3: for each of the {{room_count}} rooms, call generate_image with:
+      provider=FLUX2_MAX
+      ref_version_ids=<the list collected in Step 2>
+      target_folder_id=<context.current_folder>   # write into this folder
+      label="Room <n>"                            # e.g. "Room 1", "Room 2"
+      params.prompt=<the per-room prompt below>
+
+    Per-room prompt: describe ONE distinct interior space (kitchen, living
+    room, bedroom, hallway, study — pick whatever makes sense given the
+    references), photoreal, single wide establishing shot, no people, no
+    text, no captions. Weave the user's style direction "{{style}}" into
+    every prompt so all {{room_count}} rooms share that direction. Each
+    room must be DIFFERENT — do not regenerate the same space twice.
+
+  Step 4: report a one-line summary per room (n / room_count, new file id,
+    short description) so the user can scan the result.
+
+  Hard rules:
+    - Do NOT call save_as_new_file directly — generate_image with
+      target_folder_id already creates a new file and a READY version in
+      that folder.
+    - Do NOT mutate any existing reference file. The references are
+      read-only inputs.
+    - Do NOT skip the reference list. The whole point is that the new
+      rooms share lighting/material/style with the supplied photos.
