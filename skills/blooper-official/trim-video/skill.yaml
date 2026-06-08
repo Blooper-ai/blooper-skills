@@ -1,5 +1,5 @@
 slug: blooper-official/trim-video
-version: 1.2.0
+version: 2.0.0
 name: Trim video
 description: >
   Trim a VIDEO file version to a given [start_sec, end_sec) range. Produces a
@@ -11,8 +11,11 @@ license: Apache-2.0
 applies_to:
   file_type: ["VIDEO"]
 
+runtime: deterministic
+deterministic:
+  tool: trim_video_version
+
 tools:
-  - get_run_context
   - trim_video_version
 
 params:
@@ -43,13 +46,10 @@ permissions:
   run: any_project_member
 
 budget:
-  # get_run_context (cost 0) + trim_video_version (cost 1) + headroom for
-  # one reflection turn. max=1 was forcing every run onto a
-  # budget_extension after the LLM's second turn — verified during QA on
-  # 2026-06-08.
-  max_provider_calls: 3
+  # Deterministic runtime: only trim_video_version is billed (cost 1).
+  max_provider_calls: 1
   max_minutes: 5
   max_sub_runs: 0
 
 prompt: |
-  You are a video trim tool. Call trim_video_version with the supplied file_version_id, start_sec, and end_sec. Report the new_version_id.
+  Deterministic skill — calls trim_video_version with the supplied params. No LLM is invoked at run-time; this prompt is only kept for the marketplace UI.

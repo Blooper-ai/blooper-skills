@@ -38,10 +38,9 @@
     "repo_path": "skills/blooper-official/crop-video",
     "slug": "blooper-official/crop-video",
     "tools": [
-      "get_run_context",
       "crop_video_version"
     ],
-    "version": "1.2.0"
+    "version": "2.0.0"
   },
   {
     "applies_to": {
@@ -107,10 +106,9 @@
     "repo_path": "skills/blooper-official/render-timeline",
     "slug": "blooper-official/render-timeline",
     "tools": [
-      "get_run_context",
       "render_timeline"
     ],
-    "version": "1.2.0"
+    "version": "2.0.0"
   },
   {
     "applies_to": {},
@@ -210,9 +208,8 @@
     "repo_path": "skills/blooper-official/trim-video",
     "slug": "blooper-official/trim-video",
     "tools": [
-      "get_run_context",
       "trim_video_version"
     ],
-    "version": "1.2.0"
+    "version": "2.0.0"
   }
 ]

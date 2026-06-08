@@ -1,5 +1,5 @@
 slug: blooper-official/crop-video
-version: 1.2.0
+version: 2.0.0
 name: Crop video
 description: >
   Crop a VIDEO file version to one of three aspect-ratio presets
@@ -11,8 +11,11 @@ license: Apache-2.0
 applies_to:
   file_type: ["VIDEO"]
 
+runtime: deterministic
+deterministic:
+  tool: crop_video_version
+
 tools:
-  - get_run_context
   - crop_video_version
 
 params:
@@ -44,13 +47,12 @@ permissions:
   run: any_project_member
 
 budget:
-  # get_run_context (cost 0) + crop_video_version (cost 1) + headroom for
-  # one reflection turn. max=1 was forcing every run onto a
-  # budget_extension after the LLM's second turn — verified during QA on
-  # 2026-06-08.
-  max_provider_calls: 3
+  # Deterministic runtime: only the one tool call is billed. No LLM, no
+  # reflection turns, so the budget is just crop_video_version's cost (1)
+  # with no headroom needed.
+  max_provider_calls: 1
   max_minutes: 5
   max_sub_runs: 0
 
 prompt: |
-  You are a video crop tool. Call crop_video_version with the supplied file_version_id and aspect preset. Report the new_version_id.
+  Deterministic skill — calls crop_video_version with the supplied params. No LLM is invoked at run-time; this prompt is only kept for the marketplace UI.
