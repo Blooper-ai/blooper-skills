@@ -5,11 +5,11 @@
 
 Community skill registry for the [Blooper](https://blooper.ai) creative workspace. Each subdirectory under `skills/<publisher>/<slug>/` describes one installable skill the Blooper app can offer users in chat.
 
-A skill is a single declarative `manifest.yaml` (plus an optional README, icon, and small tool stubs) that wires together built-in runtime tools to do something useful — trim a video, generate ten variants of a character, summarize a PDF, etc. Skills are pure configuration: no servers to deploy, no SDK to install.
+A skill is a single declarative `skill.yaml` (plus an optional README, icon, and small tool stubs) that wires together built-in runtime tools to do something useful — trim a video, generate ten variants of a character, summarize a PDF, etc. Skills are pure configuration: no servers to deploy, no SDK to install.
 
 ## How it works
 
-1. You write a `manifest.yaml` in this repo describing inputs, the prompt template, the tools the skill calls, and the expected output.
+1. You write a `skill.yaml` in this repo describing inputs, the prompt template, the tools the skill calls, and the expected output.
 2. You open a pull request. CI validates the manifest against the JSON Schema, runs structural checks, and verifies `registry.json` was regenerated.
 3. After review and merge, the skill appears in the Blooper marketplace within 24h. The Blooper app pulls `registry.json` from this repo and shows your skill to users whose chat context matches your skill's `applies_to` filter.
 4. Users install the skill into their project with one click. Updates land the next time they pull the marketplace.
@@ -17,7 +17,7 @@ A skill is a single declarative `manifest.yaml` (plus an optional README, icon, 
 ## Adding a skill
 
 1. Fork this repo.
-2. Create `skills/<your-publisher>/<your-skill-slug>/` and add a `manifest.yaml` (use any existing skill under `skills/blooper-official/` as a starting point).
+2. Create `skills/<your-publisher>/<your-skill-slug>/` and add a `skill.yaml` (use any existing skill under `skills/blooper-official/` as a starting point).
 3. Write the README, drop in an optional 64x64 SVG icon.
 4. Validate locally:
    ```sh
@@ -34,7 +34,7 @@ Full step-by-step in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ```
 blooper-skills/
-├── schema/                       JSON Schema for one manifest.yaml
+├── schema/                       JSON Schema for one skill.yaml
 ├── scripts/                      validate, build_registry
 ├── skills/<publisher>/<slug>/    one directory per skill
 └── registry.json                 auto-generated index of every skill

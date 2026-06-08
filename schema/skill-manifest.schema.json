@@ -788,5 +788,5 @@
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/blooper-ai/blooper-skills/main/schema/skill-manifest.schema.json",
-  "description": "Schema for a single skill manifest.yaml in the blooper-skills monorepo."
+  "description": "Schema for a single skill.yaml (or skill.yml / skill.json) in the blooper-skills monorepo."
 }

@@ -6,6 +6,10 @@ Usage:
     python scripts/validate.py --strict        # fail on warnings too
     python scripts/validate.py --manifest PATH # validate one manifest
 
+The canonical manifest filename is ``skill.yaml``. ``skill.yml`` and
+``skill.json`` are accepted as alternates per skill — pick one. Mixing
+two in the same skill directory is an error (we won't guess which wins).
+
 Exit code is 0 when every manifest passes, 1 otherwise.
 """
 
@@ -41,6 +45,12 @@ SCHEMA_PATH = REPO_ROOT / "schema" / "skill-manifest.schema.json"
 SKILLS_ROOT = REPO_ROOT / "skills"
 
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
+
+# Canonical filename first, then accepted alternates. The same filename set
+# is honoured by the backend zip parser (``backend/app/skills/sources/zip.py``)
+# and the community fetcher (``backend/app/skills/sources/community.py``) so
+# that the same authoring artifact works in every install path.
+MANIFEST_FILENAMES: tuple[str, ...] = ("skill.yaml", "skill.yml", "skill.json")
 
 # License policy: see LICENSING.md.
 DEFAULT_LICENSE = "Apache-2.0"
@@ -114,7 +124,15 @@ def discover_manifests(explicit: Path | None) -> list[Path]:
         return [explicit.resolve()]
     if not SKILLS_ROOT.exists():
         return []
-    return sorted(SKILLS_ROOT.rglob("manifest.yaml"))
+    # Walk every skill directory and accept any one of the canonical
+    # filenames. If a skill ships more than one (skill.yaml AND skill.json)
+    # we surface every match — validate_one will fail it as ambiguous so
+    # CI catches the conflict instead of silently picking one.
+    found: list[Path] = []
+    for path in sorted(SKILLS_ROOT.rglob("*")):
+        if path.is_file() and path.name in MANIFEST_FILENAMES:
+            found.append(path)
+    return found
 
 
 def _line_for_key(text: str, key: str) -> int | None:
@@ -151,17 +169,40 @@ def validate_one(
         report.errors.append(f"unreadable: {exc}")
         return report
 
-    try:
-        data = yaml.safe_load(raw_text)
-    except yaml.YAMLError as exc:
-        mark = getattr(exc, "problem_mark", None)
-        loc = f":{mark.line + 1}" if mark is not None else ""
-        report.errors.append(f"yaml parse error{loc}: {exc}")
-        return report
+    if manifest_path.name.endswith(".json"):
+        try:
+            data = json.loads(raw_text)
+        except json.JSONDecodeError as exc:
+            report.errors.append(
+                f"json parse error:{exc.lineno}: {exc.msg}"
+            )
+            return report
+    else:
+        try:
+            data = yaml.safe_load(raw_text)
+        except yaml.YAMLError as exc:
+            mark = getattr(exc, "problem_mark", None)
+            loc = f":{mark.line + 1}" if mark is not None else ""
+            report.errors.append(f"yaml parse error{loc}: {exc}")
+            return report
 
     if not isinstance(data, dict):
-        report.errors.append("manifest root must be a YAML mapping")
+        report.errors.append("manifest root must be a mapping (YAML or JSON object)")
         return report
+
+    # Reject ambiguous skill directories that ship more than one of
+    # skill.yaml / skill.yml / skill.json. Pick one — the install path
+    # cannot guess which to honour.
+    siblings = [
+        p.name for p in manifest_path.parent.iterdir()
+        if p.is_file() and p.name in MANIFEST_FILENAMES
+    ]
+    if len(siblings) > 1:
+        report.errors.append(
+            f"{manifest_path.parent}: skill directory contains multiple manifest "
+            f"files ({', '.join(sorted(siblings))}); keep exactly one of "
+            f"{', '.join(MANIFEST_FILENAMES)}"
+        )
 
     # JSON Schema validation.
     schema_errors = sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))
@@ -187,8 +228,8 @@ def validate_one(
             parts = rel.parts
             if len(parts) != 2:
                 report.errors.append(
-                    f"{manifest_path}: expected path skills/<publisher>/<slug>/manifest.yaml, "
-                    f"got skills/{'/'.join(parts)}/manifest.yaml"
+                    f"{manifest_path}: expected path skills/<publisher>/<slug>/{manifest_path.name}, "
+                    f"got skills/{'/'.join(parts)}/{manifest_path.name}"
                 )
             else:
                 expected_slug = f"{parts[0]}/{parts[1]}"
@@ -269,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
         "--manifest",
         type=Path,
         default=None,
-        help="Validate a single manifest.yaml (default: walk skills/).",
+        help="Validate a single skill.yaml/yml/json (default: walk skills/).",
     )
     args = parser.parse_args(argv)
 

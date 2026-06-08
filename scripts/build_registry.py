@@ -106,7 +106,10 @@ def build(strict: bool = True) -> list[dict[str, Any]]:
                 print(f"  - {err}", file=sys.stderr)
             continue
         with path.open("r", encoding="utf-8") as fh:
-            data = yaml.safe_load(fh) or {}
+            if path.name.endswith(".json"):
+                data = json.loads(fh.read()) or {}
+            else:
+                data = yaml.safe_load(fh) or {}
         entries.append(manifest_to_entry(path, data))
 
     if failed and strict:

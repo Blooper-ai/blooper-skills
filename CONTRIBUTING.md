@@ -5,7 +5,7 @@ Thanks for adding a skill to the Blooper marketplace. This repo follows a Raycas
 ## TL;DR
 
 1. Fork and clone the repo.
-2. Create `skills/<your-publisher>/<your-skill-slug>/` and drop in a `manifest.yaml` + `README.md` (use any skill under `skills/blooper-official/` as a starting point).
+2. Create `skills/<your-publisher>/<your-skill-slug>/` and drop in a `skill.yaml` + `README.md` (use any skill under `skills/blooper-official/` as a starting point).
 3. Run `python scripts/validate.py` and `python scripts/build_registry.py` locally.
 4. Commit, push, open a PR using the template and fill in the checklist.
 
@@ -16,7 +16,7 @@ Slugs are `<publisher>/<skill-name>`, both kebab-case, both matching `[a-z0-9_-]
 - `publisher` is your handle or org. By convention it matches the directory name under `skills/` and your GitHub username/org. First-time contributors: pick something you can live with - this becomes part of every install id.
 - `skill-name` describes what the skill does in 1-3 words: `trim-video`, `summarize-pdf`, `caption-image`.
 
-The slug MUST match the folder path. A manifest with `slug: alice/caption-image` must live at `skills/alice/caption-image/manifest.yaml`. CI enforces this.
+The slug MUST match the folder path. A manifest with `slug: alice/caption-image` must live at `skills/alice/caption-image/skill.yaml`. CI enforces this.
 
 ## Step 2 - Scaffold from an existing skill
 
@@ -30,7 +30,7 @@ A skill directory holds:
 
 ```
 skills/<publisher>/<skill-slug>/
-├── manifest.yaml      # edit this
+├── skill.yaml      # edit this
 ├── README.md          # edit this
 ├── icon.svg           # optional, drop in a 64x64 svg
 └── tools/             # optional; delete if you only use built-in tools
@@ -39,7 +39,7 @@ skills/<publisher>/<skill-slug>/
 
 ## Step 3 - Write the manifest
 
-`manifest.yaml` follows the SkillManifest schema. Authoritative reference is [`schema/skill-manifest.schema.json`](./schema/skill-manifest.schema.json). The non-obvious fields:
+`skill.yaml` follows the SkillManifest schema. Authoritative reference is [`schema/skill-manifest.schema.json`](./schema/skill-manifest.schema.json). `skill.yml` and `skill.json` are accepted as alternates — pick one per skill (shipping two in the same directory is an error). The non-obvious fields:
 
 - `applies_to` - when the skill should be offered to the user. AND across keys, OR within lists. Leave empty to apply everywhere.
 - `params` - typed inputs presented to the user before run.
@@ -54,7 +54,7 @@ Most skills should compose existing built-in tools. If you genuinely need a new 
 
 1. Put one or more `*.py` files under `skills/<publisher>/<skill-slug>/tools/`.
 2. Each tool file must export a `register(registry)` function.
-3. List the tool's exported name in `manifest.yaml` `tools:`.
+3. List the tool's exported name in `skill.yaml` `tools:`.
 4. A platform-runtime reviewer must sign off before the PR can merge. Custom tools become part of the runtime; they are reviewed for safety, cost, and API stability. Expect a longer review cycle and be ready to iterate.
 
 If you do NOT need a new tool, omit the `tools/` directory.
@@ -75,7 +75,7 @@ Every skill must include `README.md` with at minimum:
 pip install pyyaml jsonschema
 
 # Validate just your skill:
-python scripts/validate.py --manifest skills/<publisher>/<skill-slug>/manifest.yaml
+python scripts/validate.py --manifest skills/<publisher>/<skill-slug>/skill.yaml
 
 # Run full structural checks across every manifest:
 python scripts/validate.py
@@ -103,7 +103,7 @@ Use the auto-loaded PULL_REQUEST_TEMPLATE.md and complete every checkbox. A typi
 
 ## Versioning
 
-- Follow semver. Bump `version` in `manifest.yaml` for every change that ships.
+- Follow semver. Bump `version` in `skill.yaml` for every change that ships.
 - Patch (`1.0.X`) for prompt tweaks, README fixes, icon swaps.
 - Minor (`1.X.0`) for new params with safe defaults, new tools, expanded applicability.
 - Major (`X.0.0`) for breaking param changes, removed tools, narrowed applicability.
