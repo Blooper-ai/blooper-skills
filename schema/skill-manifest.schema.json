@@ -114,6 +114,24 @@
           ],
           "default": null,
           "title": "Default"
+        },
+        "prefill_from": {
+          "anyOf": [
+            {
+              "enum": [
+                "context.current_folder_id",
+                "context.current_file_id",
+                "context.current_version_id"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Server-side prefill: when set, the run endpoint fills this param from the run context if the caller didn't pass a value. Lets a skill omit the manual UUID paste when applies_to already pins the surrounding folder/file/version.",
+          "title": "Prefill From"
         }
       },
       "required": [
@@ -193,6 +211,24 @@
           ],
           "default": null,
           "title": "File Type"
+        },
+        "prefill_from": {
+          "anyOf": [
+            {
+              "enum": [
+                "context.current_folder_id",
+                "context.current_file_id",
+                "context.current_version_id"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Server-side prefill: when set, the run endpoint fills this param from the run context if the caller didn't pass a value. Lets a skill omit the manual UUID paste when applies_to already pins the surrounding folder/file/version.",
+          "title": "Prefill From"
         }
       },
       "required": [
@@ -273,6 +309,24 @@
           ],
           "default": null,
           "title": "File Type"
+        },
+        "prefill_from": {
+          "anyOf": [
+            {
+              "enum": [
+                "context.current_folder_id",
+                "context.current_file_id",
+                "context.current_version_id"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Server-side prefill: when set, the run endpoint fills this param from the run context if the caller didn't pass a value. Lets a skill omit the manual UUID paste when applies_to already pins the surrounding folder/file/version.",
+          "title": "Prefill From"
         }
       },
       "required": [
@@ -341,6 +395,24 @@
           ],
           "default": null,
           "title": "Default"
+        },
+        "prefill_from": {
+          "anyOf": [
+            {
+              "enum": [
+                "context.current_folder_id",
+                "context.current_file_id",
+                "context.current_version_id"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Server-side prefill: when set, the run endpoint fills this param from the run context if the caller didn't pass a value. Lets a skill omit the manual UUID paste when applies_to already pins the surrounding folder/file/version.",
+          "title": "Prefill From"
         }
       },
       "required": [
@@ -409,6 +481,24 @@
           ],
           "default": null,
           "title": "Default"
+        },
+        "prefill_from": {
+          "anyOf": [
+            {
+              "enum": [
+                "context.current_folder_id",
+                "context.current_file_id",
+                "context.current_version_id"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Server-side prefill: when set, the run endpoint fills this param from the run context if the caller didn't pass a value. Lets a skill omit the manual UUID paste when applies_to already pins the surrounding folder/file/version.",
+          "title": "Prefill From"
         }
       },
       "required": [
@@ -535,6 +625,24 @@
           ],
           "default": null,
           "title": "Default"
+        },
+        "prefill_from": {
+          "anyOf": [
+            {
+              "enum": [
+                "context.current_folder_id",
+                "context.current_file_id",
+                "context.current_version_id"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Server-side prefill: when set, the run endpoint fills this param from the run context if the caller didn't pass a value. Lets a skill omit the manual UUID paste when applies_to already pins the surrounding folder/file/version.",
+          "title": "Prefill From"
         }
       },
       "required": [
@@ -605,6 +713,24 @@
           ],
           "default": null,
           "title": "Max Length"
+        },
+        "prefill_from": {
+          "anyOf": [
+            {
+              "enum": [
+                "context.current_folder_id",
+                "context.current_file_id",
+                "context.current_version_id"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Server-side prefill: when set, the run endpoint fills this param from the run context if the caller didn't pass a value. Lets a skill omit the manual UUID paste when applies_to already pins the surrounding folder/file/version.",
+          "title": "Prefill From"
         }
       },
       "required": [
@@ -696,16 +822,31 @@
     },
     "model": {
       "anyOf": [
-        { "type": "string", "minLength": 1 },
-        { "type": "null" }
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
       ],
       "default": null,
       "description": "Optional LLM model identifier. When null, the platform default is used. Skill authors should leave this null unless they have a specific reason to pin a model.",
       "title": "Model"
     },
     "license": {
-      "type": ["string", "null"],
-      "enum": [null, "Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause", "ISC"],
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        null,
+        "Apache-2.0",
+        "MIT",
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "ISC"
+      ],
       "default": null,
       "title": "License",
       "description": "SPDX license identifier. Allowed values: Apache-2.0 (default), MIT, BSD-2-Clause, BSD-3-Clause, ISC. Rejected licenses (GPL family, SSPL, non-commercial) will fail PR validation. See LICENSING.md."

@@ -1,5 +1,5 @@
 slug: blooper-official/render-timeline
-version: 1.1.0
+version: 1.2.0
 name: Render timeline
 description: >
   Render a Timeline to a single MP4 file via ffmpeg. Each call produces a new
@@ -19,7 +19,10 @@ params:
   - name: timeline_folder_id
     label: Timeline folder
     type: text
-    optional: false
+    # Pre-filled from the surrounding folder context — applies_to.folder_kind
+    # = timeline already pins it. The BE fills this server-side.
+    optional: true
+    prefill_from: context.current_folder_id
     placeholder: uuid
   - name: aspect
     label: Output preset

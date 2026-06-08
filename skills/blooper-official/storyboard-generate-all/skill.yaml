@@ -1,5 +1,5 @@
 slug: blooper-official/storyboard-generate-all
-version: 1.2.0
+version: 1.3.0
 name: Generate all storyboard shots
 description: >
   Fan out one generate_image (empty shots) or regenerate_shot (non-empty when
@@ -25,7 +25,10 @@ params:
   - name: storyboard_folder_id
     label: Storyboard folder ID
     type: text
-    optional: false
+    # Pre-filled from the surrounding folder context — applies_to.folder_kind
+    # = storyboard already pins it.
+    optional: true
+    prefill_from: context.current_folder_id
     placeholder: uuid
   - name: force
     label: Re-generate non-empty shots
