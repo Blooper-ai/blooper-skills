@@ -1,5 +1,5 @@
 slug: blooper-official/trim-video
-version: 1.1.0
+version: 1.2.0
 name: Trim video
 description: >
   Trim a VIDEO file version to a given [start_sec, end_sec) range. Produces a
@@ -19,7 +19,11 @@ params:
   - name: file_version_id
     label: Source video version
     type: text
-    optional: false
+    # Pre-filled from the surrounding file context — same pattern as
+    # crop-video; the BE resolves this server-side from
+    # body.context.current_version_id.
+    optional: true
+    prefill_from: context.current_version_id
     placeholder: uuid
   - name: start_sec
     label: Start (seconds)

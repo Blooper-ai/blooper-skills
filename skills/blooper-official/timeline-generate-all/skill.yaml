@@ -1,5 +1,5 @@
 slug: blooper-official/timeline-generate-all
-version: 1.0.0
+version: 1.1.0
 name: Generate all timeline clips
 description: >
   Fan out one generate_video job per empty or image-only clip in a timeline.
@@ -22,7 +22,9 @@ params:
   - name: timeline_folder_id
     label: Timeline folder ID
     type: text
-    optional: false
+    # Pre-filled from the surrounding timeline folder context.
+    optional: true
+    prefill_from: context.current_folder_id
     placeholder: uuid
   - name: force
     label: Re-generate clips that already have video

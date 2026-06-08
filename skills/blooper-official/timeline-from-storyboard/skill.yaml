@@ -1,5 +1,5 @@
 slug: blooper-official/timeline-from-storyboard
-version: 1.0.0
+version: 1.1.0
 name: Create timeline from storyboard
 description: >
   Create a new Timeline structurally seeded from a Storyboard: one
@@ -23,7 +23,9 @@ params:
   - name: storyboard_folder_id
     label: Storyboard folder ID
     type: text
-    optional: false
+    # Pre-filled from the surrounding storyboard folder context.
+    optional: true
+    prefill_from: context.current_folder_id
     placeholder: uuid
   - name: name
     label: Timeline name
