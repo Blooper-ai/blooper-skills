@@ -152,14 +152,24 @@ def _budget_check(
         else:
             unknown.append(t)
 
-    minimum_recommended = sum_known + _BUDGET_REFLECTION_HEADROOM
+    # Deterministic skills skip the LLM entirely — only the one declared
+    # tool is billed, no reflection-turn headroom needed. The schema
+    # guarantees deterministic.tool is in tools[], so sum_known already
+    # accounts for it. See backend/app/skills/manifest.py:DeterministicSpec.
+    is_deterministic = data.get("runtime") == "deterministic"
+    headroom = 0 if is_deterministic else _BUDGET_REFLECTION_HEADROOM
+    minimum_recommended = sum_known + headroom
     if cap_raw < minimum_recommended:
+        suffix = (
+            "Bump the budget or remove unused tools."
+            if not is_deterministic
+            else "Bump the budget or remove unused tools (deterministic runtime — no reflection-turn headroom is added)."
+        )
         warnings.append(
             f"budget.max_provider_calls={cap_raw} is below recommended "
             f"minimum {minimum_recommended} (sum of tool costs "
-            f"{sum_known} + {_BUDGET_REFLECTION_HEADROOM} reflection-turn "
-            f"headroom). Every run will pause on a budget_extension "
-            f"approval. Bump the budget or remove unused tools."
+            f"{sum_known}{'' if is_deterministic else f' + {_BUDGET_REFLECTION_HEADROOM} reflection-turn headroom'}). "
+            f"Every run will pause on a budget_extension approval. {suffix}"
         )
 
     if unknown:

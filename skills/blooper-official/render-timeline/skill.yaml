@@ -1,5 +1,5 @@
 slug: blooper-official/render-timeline
-version: 1.2.0
+version: 2.0.0
 name: Render timeline
 description: >
   Render a Timeline to a single MP4 file via ffmpeg. Each call produces a new
@@ -11,8 +11,11 @@ license: Apache-2.0
 applies_to:
   folder_kind: ["timeline"]
 
+runtime: deterministic
+deterministic:
+  tool: render_timeline
+
 tools:
-  - get_run_context
   - render_timeline
 
 params:
@@ -46,12 +49,10 @@ permissions:
   run: any_project_member
 
 budget:
-  # render_timeline tool has cost=5 in the backend tools registry, so
-  # max=1 was guaranteed to bounce every call onto a budget_extension.
-  # 8 = render_timeline (5) + get_run_context (0) + one reflection turn.
-  max_provider_calls: 8
+  # Deterministic runtime: only render_timeline is billed (cost 5).
+  max_provider_calls: 5
   max_minutes: 20
   max_sub_runs: 0
 
 prompt: |
-  You are a timeline renderer. Call render_timeline with the supplied timeline_folder_id and aspect preset. Report the new_version_id.
+  Deterministic skill — calls render_timeline with the supplied params. No LLM is invoked at run-time; this prompt is only kept for the marketplace UI.

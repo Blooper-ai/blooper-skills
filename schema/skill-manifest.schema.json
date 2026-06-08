@@ -740,6 +740,23 @@
       ],
       "title": "TextParam",
       "type": "object"
+    },
+    "DeterministicSpec": {
+      "additionalProperties": false,
+      "description": "Skip the LLM and invoke exactly one tool with run.params as kwargs. See SkillManifest.runtime.",
+      "properties": {
+        "tool": {
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string",
+          "description": "Tool slug to invoke."
+        }
+      },
+      "required": [
+        "tool"
+      ],
+      "title": "DeterministicSpec",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -916,6 +933,28 @@
     },
     "budget": {
       "$ref": "#/$defs/BudgetSpec"
+    },
+    "runtime": {
+      "default": "agent",
+      "enum": [
+        "agent",
+        "deterministic"
+      ],
+      "title": "Runtime",
+      "type": "string",
+      "description": "Execution mode. 'agent' (default) drives an LLM tool-use loop against the prompt + tools list. 'deterministic' skips the LLM and invokes exactly one tool \u2014 see DeterministicSpec."
+    },
+    "deterministic": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DeterministicSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deterministic"
     }
   },
   "required": [
