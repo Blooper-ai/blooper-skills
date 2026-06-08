@@ -1,0 +1,785 @@
+{
+  "$defs": {
+    "AppliesTo": {
+      "additionalProperties": false,
+      "properties": {
+        "folder_name": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Folder Name"
+        },
+        "parent_folder_name": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Folder Name"
+        },
+        "file_type": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File Type"
+        },
+        "folder_kind": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Folder Kind"
+        },
+        "min_context_files": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Context Files"
+        }
+      },
+      "title": "AppliesTo",
+      "type": "object"
+    },
+    "BooleanParam": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "title": "Optional",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "boolean",
+          "title": "Type",
+          "type": "string"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "BooleanParam",
+      "type": "object"
+    },
+    "BudgetSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "max_provider_calls": {
+          "default": 20,
+          "minimum": 0,
+          "title": "Max Provider Calls",
+          "type": "integer"
+        },
+        "max_minutes": {
+          "default": 15,
+          "minimum": 1,
+          "title": "Max Minutes",
+          "type": "integer"
+        },
+        "max_sub_runs": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Max Sub Runs",
+          "type": "integer"
+        }
+      },
+      "title": "BudgetSpec",
+      "type": "object"
+    },
+    "FileVersionParam": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "title": "Optional",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "file_version",
+          "title": "Type",
+          "type": "string"
+        },
+        "source": {
+          "default": "current_folder",
+          "enum": [
+            "current_folder",
+            "project",
+            "any"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "file_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File Type"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "FileVersionParam",
+      "type": "object"
+    },
+    "FileVersionsParam": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "title": "Optional",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "file_versions",
+          "title": "Type",
+          "type": "string"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "source": {
+          "default": "current_folder",
+          "enum": [
+            "current_folder",
+            "project",
+            "any"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "file_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File Type"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "FileVersionsParam",
+      "type": "object"
+    },
+    "IntegerParam": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "title": "Optional",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "integer",
+          "title": "Type",
+          "type": "string"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "IntegerParam",
+      "type": "object"
+    },
+    "NumberParam": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "title": "Optional",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "number",
+          "title": "Type",
+          "type": "string"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "NumberParam",
+      "type": "object"
+    },
+    "OutputSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "produces": {
+          "enum": [
+            "file_versions",
+            "files",
+            "metadata_only"
+          ],
+          "title": "Produces",
+          "type": "string"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "default": "dynamic",
+          "title": "Count"
+        },
+        "parent_kind": {
+          "default": "folder",
+          "enum": [
+            "folder",
+            "file"
+          ],
+          "title": "Parent Kind",
+          "type": "string"
+        },
+        "parent_from": {
+          "default": "context.current_folder",
+          "enum": [
+            "context.current_folder",
+            "context.current_file"
+          ],
+          "title": "Parent From",
+          "type": "string"
+        }
+      },
+      "required": [
+        "produces"
+      ],
+      "title": "OutputSpec",
+      "type": "object"
+    },
+    "PermissionsSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "install": {
+          "default": "any_project_member",
+          "enum": [
+            "any_project_member",
+            "project_owner"
+          ],
+          "title": "Install",
+          "type": "string"
+        },
+        "run": {
+          "default": "any_project_member",
+          "enum": [
+            "any_project_member",
+            "project_owner"
+          ],
+          "title": "Run",
+          "type": "string"
+        }
+      },
+      "title": "PermissionsSpec",
+      "type": "object"
+    },
+    "SelectParam": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "title": "Optional",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "select",
+          "title": "Type",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Options",
+          "type": "array"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type",
+        "options"
+      ],
+      "title": "SelectParam",
+      "type": "object"
+    },
+    "TextParam": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "title": "Optional",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "text",
+          "title": "Type",
+          "type": "string"
+        },
+        "placeholder": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placeholder"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        },
+        "max_length": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Length"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "TextParam",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "slug": {
+      "pattern": "^[a-z0-9_-]+/[a-z0-9_-]+$",
+      "title": "Slug",
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "publisher": {
+      "default": "",
+      "title": "Publisher",
+      "type": "string"
+    },
+    "icon": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Icon"
+    },
+    "preinstall": {
+      "default": false,
+      "title": "Preinstall",
+      "type": "boolean"
+    },
+    "kind": {
+      "default": "skill",
+      "enum": [
+        "skill",
+        "agent"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "spawnable": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "const": "*",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Spawnable"
+    },
+    "applies_to": {
+      "$ref": "#/$defs/AppliesTo"
+    },
+    "prompt": {
+      "title": "Prompt",
+      "type": "string"
+    },
+    "model": {
+      "anyOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "null" }
+      ],
+      "default": null,
+      "description": "Optional LLM model identifier. When null, the platform default is used. Skill authors should leave this null unless they have a specific reason to pin a model.",
+      "title": "Model"
+    },
+    "tools": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tools",
+      "type": "array"
+    },
+    "folder_pin_policy": {
+      "default": "hard",
+      "enum": [
+        "hard",
+        "default"
+      ],
+      "title": "Folder Pin Policy",
+      "type": "string"
+    },
+    "params": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "boolean": "#/$defs/BooleanParam",
+            "file_version": "#/$defs/FileVersionParam",
+            "file_versions": "#/$defs/FileVersionsParam",
+            "integer": "#/$defs/IntegerParam",
+            "number": "#/$defs/NumberParam",
+            "select": "#/$defs/SelectParam",
+            "text": "#/$defs/TextParam"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/TextParam"
+          },
+          {
+            "$ref": "#/$defs/IntegerParam"
+          },
+          {
+            "$ref": "#/$defs/NumberParam"
+          },
+          {
+            "$ref": "#/$defs/BooleanParam"
+          },
+          {
+            "$ref": "#/$defs/SelectParam"
+          },
+          {
+            "$ref": "#/$defs/FileVersionsParam"
+          },
+          {
+            "$ref": "#/$defs/FileVersionParam"
+          }
+        ]
+      },
+      "title": "Params",
+      "type": "array"
+    },
+    "output": {
+      "$ref": "#/$defs/OutputSpec"
+    },
+    "permissions": {
+      "$ref": "#/$defs/PermissionsSpec"
+    },
+    "budget": {
+      "$ref": "#/$defs/BudgetSpec"
+    }
+  },
+  "required": [
+    "slug",
+    "version",
+    "name",
+    "prompt",
+    "output"
+  ],
+  "title": "Blooper Skill Manifest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/blooper-ai/blooper-skills/main/schema/skill-manifest.schema.json",
+  "description": "Schema for a single skill manifest.yaml in the blooper-skills monorepo."
+}

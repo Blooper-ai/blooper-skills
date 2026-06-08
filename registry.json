@@ -1,0 +1,80 @@
+[
+  {
+    "applies_to": {
+      "folder_kind": [
+        "image",
+        "video",
+        "moodboard"
+      ]
+    },
+    "description": "Fan out the same image or video prompt across every connected provider and present one version per provider for the user to pick.",
+    "icon_url": null,
+    "name": "Generate in all providers",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper/generate-in-all-providers",
+    "slug": "blooper/generate-in-all-providers",
+    "tools": [
+      "list_available_image_providers",
+      "list_available_video_providers",
+      "generate_image",
+      "generate_video",
+      "write_file_version",
+      "request_user_pick"
+    ],
+    "version": "1.0.0"
+  },
+  {
+    "applies_to": {
+      "file_type": [
+        "image",
+        "video"
+      ],
+      "parent_folder_name": [
+        "shots",
+        "storyboard"
+      ]
+    },
+    "description": "Make a new version of a single shot with a tweak (style, camera, prompt edit) while keeping the rest of the storyboard locked.",
+    "icon_url": null,
+    "name": "Regenerate shot",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper/regenerate-shot",
+    "slug": "blooper/regenerate-shot",
+    "tools": [
+      "read_file_version",
+      "generate_image",
+      "generate_video",
+      "write_file_version"
+    ],
+    "version": "1.0.0"
+  },
+  {
+    "applies_to": {
+      "file_type": [
+        "script",
+        "screenplay",
+        "text"
+      ],
+      "folder_kind": [
+        "storyboard",
+        "script"
+      ]
+    },
+    "description": "Turn a screenplay or beat sheet into a shot-by-shot storyboard with one image per shot.",
+    "icon_url": "skills/blooper/storyboard-from-script/icon.svg",
+    "name": "Storyboard from script",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper/storyboard-from-script",
+    "slug": "blooper/storyboard-from-script",
+    "tools": [
+      "parse_script",
+      "draft_shot_list",
+      "generate_image",
+      "write_file_version"
+    ],
+    "version": "1.0.0"
+  }
+]

@@ -1,0 +1,52 @@
+name: build-registry
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "skills/**"
+      - "schema/**"
+      - "scripts/build_registry.py"
+      - "scripts/validate.py"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: regenerate registry.json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml jsonschema
+
+      - name: Validate manifests
+        run: python scripts/validate.py --strict
+
+      - name: Build registry.json
+        run: python scripts/build_registry.py
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet -- registry.json; then
+            echo "registry.json is up to date; nothing to commit."
+            exit 0
+          fi
+          git add registry.json
+          git -c user.name="blooper-skills-bot" \
+              -c user.email="bot@blooper.ai" \
+              commit -m "chore(registry): regenerate [skip ci]"
+          git push origin HEAD:main
