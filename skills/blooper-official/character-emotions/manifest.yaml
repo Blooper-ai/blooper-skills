@@ -1,0 +1,109 @@
+slug: blooper-official/character-emotions
+version: 1.6.0
+name: Character Emotions
+description: >
+  Generate four expressive emotion variants of a character — saved as new
+  VERSIONS of the same file, not separate files. Each version is labelled with
+  the emotion (Happy, Sad, …). Self-verifies each variant; if one regresses to
+  a grid/sheet, the retry hangs off the failed attempt as its child so the
+  version tree reflects lineage.
+publisher: blooper
+kind: skill
+preinstall: true
+
+applies_to:
+  file_type: ["IMAGE"]
+  folder_name: ["Characters"]
+
+tools:
+  - get_run_context
+  - generate_image
+  - describe_image
+
+params:
+  - name: emotion_count
+    label: Number of emotion variants
+    type: integer
+    min: 2
+    max: 8
+    default: 4
+  - name: emotions
+    label: "Emotions (comma-separated; default: happy, sad, angry, surprised)"
+    type: text
+    default: "happy, sad, angry, surprised"
+    optional: true
+
+output:
+  produces: file_versions
+  count: from_param.emotion_count
+  parent_kind: file
+  parent_from: context.current_file
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 50
+  max_minutes: 12
+  max_sub_runs: 0
+
+prompt: |
+  You are generating {{emotion_count}} emotional variants of a SINGLE character and attaching each one as a NEW VERSION OF THE EXISTING FILE — NOT as a separate file.
+
+  Step 1: call get_run_context to read project_id, file_id, and current_version_id.
+    - current_version_id is the source image (the character).
+    - First-attempt generations use parent_version_id=current_version_id so each clean
+      variant is a sibling under the original. RETRIES use the failed attempt's
+      version_id as parent_version_id — see Step 3.
+
+  Step 2: emit the variants in the order: {{emotions}}.
+    Generate them SEQUENTIALLY — each call uses the active-generation lock on the file.
+
+    For each emotion, call generate_image with:
+      provider=NANO_BANANA
+      ref_version_ids=[current_version_id]
+      parent_version_id=current_version_id    # FIRST attempt only
+      label=<EmotionTitleCase>                # e.g. "Happy", "Sad", "Angry", "Surprised"
+    and the prompt below — substitute <emotion> with a SHORT lowercase adjective
+    (e.g. happy, sad, angry, surprised). No ALL-CAPS, no quotes around the emotion:
+
+      "Edit the reference image: change ONLY the cat's facial expression and a small "
+      "amount of body language so the cat now looks <emotion>. Keep the SAME single cat, "
+      "in the SAME pose, with the SAME fur colour and markings, on the SAME plain neutral "
+      "background. The output is ONE single image of ONE single cat, full body, centred. "
+      "No text, no captions, no labels. Do NOT make a character sheet, expression chart, "
+      "mood board, comparison sheet, or multi-panel layout. Single image only."
+
+    The label is what the user sees in the version tree. Pass exactly the emotion name in
+    Title-case ("Happy", not "happy" and not "HAPPY"). Do not include the prompt or
+    any extra words in the label.
+
+  Step 3: VERIFY each generation. After each generate_image returns, call describe_image
+    on the new version_id. Inspect the description. If it mentions ANY of: grid, sheet,
+    mood board, multi-panel, multiple, panels, six, four, expressions, chart, comparison,
+    several cats, multiple cats — the output regressed.
+
+    Regenerate it ONCE with this exact pair of arg changes:
+      parent_version_id=<the FAILED attempt's version_id>   ← NOT current_version_id
+      ref_version_ids=[current_version_id]                 ← still the original as ref
+      label="<EmotionTitleCase> (retry)"                   ← e.g. "Happy (retry)"
+    and a hard prefix on the prompt:
+      "CRITICAL: the previous attempt produced a grid/sheet of multiple expressions. "
+      "This output must be EXACTLY ONE cat in a single shot. " + the original prompt.
+
+    Why parent_version_id points at the failed attempt: it makes the retry a CHILD of the
+    failed version in the file's version tree, so the lineage "this is a regeneration of
+    THAT bad attempt" is preserved. The clean variants still hang off the original.
+
+    When the retry also fails the check, accept the second result and move on. Don't loop.
+
+  Step 4: between calls, narrate progress in plain English so the chat feed reads like
+    progress ("Now generating sad…", "Detected grid output, regenerating as a child of
+    the failed attempt…", "Clean — moving on.").
+
+  Hard rules:
+    - Do NOT call save_as_new_file or create_folder.
+    - Do NOT use phrases like 'character sheet', 'reference sheet', 'mood board',
+      'variations', 'expressions', 'poses' in your generate_image prompts.
+    - Do NOT include the literal emotion word in uppercase or quoted form.

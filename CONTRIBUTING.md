@@ -5,10 +5,9 @@ Thanks for adding a skill to the Blooper marketplace. This repo follows a Raycas
 ## TL;DR
 
 1. Fork and clone the repo.
-2. Copy `templates/starter-skill/` to `skills/<your-publisher>/<your-skill-slug>/`.
-3. Edit `manifest.yaml`, write the README, drop in an icon.
-4. Run `python scripts/validate.py --all` and `python scripts/build_registry.py --out registry.json` locally.
-5. Commit, push, open a PR using the template and fill in the checklist.
+2. Create `skills/<your-publisher>/<your-skill-slug>/` and drop in a `manifest.yaml` + `README.md` (use any skill under `skills/blooper-official/` as a starting point).
+3. Run `python scripts/validate.py` and `python scripts/build_registry.py` locally.
+4. Commit, push, open a PR using the template and fill in the checklist.
 
 ## Step 1 - Pick a slug
 
@@ -19,13 +18,15 @@ Slugs are `<publisher>/<skill-name>`, both kebab-case, both matching `[a-z0-9_-]
 
 The slug MUST match the folder path. A manifest with `slug: alice/caption-image` must live at `skills/alice/caption-image/manifest.yaml`. CI enforces this.
 
-## Step 2 - Scaffold from the starter template
+## Step 2 - Scaffold from an existing skill
+
+Copy any skill from `skills/blooper-official/` as a starting point:
 
 ```sh
-cp -R templates/starter-skill skills/<publisher>/<skill-slug>
+cp -R skills/blooper-official/trim-video skills/<publisher>/<skill-slug>
 ```
 
-You will get:
+A skill directory holds:
 
 ```
 skills/<publisher>/<skill-slug>/
@@ -38,10 +39,10 @@ skills/<publisher>/<skill-slug>/
 
 ## Step 3 - Write the manifest
 
-`manifest.yaml` follows the SkillManifest schema. Authoritative reference is [`schema/skill-manifest.schema.json`](./schema/skill-manifest.schema.json); narrative guidance is in [`docs/authoring.md`](./docs/authoring.md). The non-obvious fields:
+`manifest.yaml` follows the SkillManifest schema. Authoritative reference is [`schema/skill-manifest.schema.json`](./schema/skill-manifest.schema.json). The non-obvious fields:
 
 - `applies_to` - when the skill should be offered to the user. AND across keys, OR within lists. Leave empty to apply everywhere.
-- `params` - typed inputs presented to the user before run; see [`docs/schema-reference.md`](./docs/schema-reference.md) for each type.
+- `params` - typed inputs presented to the user before run.
 - `output.count` - `"dynamic"`, an integer, or `"from_param.<param_name>"`.
 - `tools` - list every tool the skill calls. Tool names not provided by the runtime AND not shipped under `tools/` will fail at install.
 - `budget` - cap provider calls and minutes. Reviewers will push back on bloated budgets; start tight.
@@ -51,11 +52,11 @@ skills/<publisher>/<skill-slug>/
 Most skills should compose existing built-in tools. If you genuinely need a new tool:
 
 1. Put one or more `*.py` files under `skills/<publisher>/<skill-slug>/tools/`.
-2. Each tool file must export a `register(registry)` function (see [`docs/tool-development.md`](./docs/tool-development.md)).
+2. Each tool file must export a `register(registry)` function.
 3. List the tool's exported name in `manifest.yaml` `tools:`.
 4. A platform-runtime reviewer must sign off before the PR can merge. Custom tools become part of the runtime; they are reviewed for safety, cost, and API stability. Expect a longer review cycle and be ready to iterate.
 
-If you do NOT need a new tool, delete the `tools/` directory before opening the PR.
+If you do NOT need a new tool, omit the `tools/` directory.
 
 ## Step 5 - Write the README
 
@@ -70,23 +71,20 @@ Every skill must include `README.md` with at minimum:
 ## Step 6 - Validate locally
 
 ```sh
-pip install -r scripts/requirements.txt
+pip install pyyaml jsonschema
 
 # Validate just your skill:
-python scripts/validate.py skills/<publisher>/<skill-slug>/manifest.yaml
+python scripts/validate.py --manifest skills/<publisher>/<skill-slug>/manifest.yaml
 
-# Run full structural checks (slug-vs-path, README present, icon size):
-python scripts/validate.py --structural --all
-
-# Lint YAML style:
-yamllint -c .yamllint.yaml skills/
+# Run full structural checks across every manifest:
+python scripts/validate.py
 
 # Regenerate the registry and commit it:
-python scripts/build_registry.py --out registry.json
+python scripts/build_registry.py
 git add registry.json
 ```
 
-CI runs the same commands plus `check-jsonschema` as a second-opinion validator.
+CI runs the same commands.
 
 ## Step 7 - Open the PR
 
@@ -113,12 +111,10 @@ Use the auto-loaded PULL_REQUEST_TEMPLATE.md and complete every checkbox. A typi
 
 Open a PR that deletes `skills/<publisher>/<slug>/` and regenerates `registry.json`. The marketplace marks the slug as removed on the next index pull. Installed copies continue to work locally until the user uninstalls.
 
-## Code of Conduct
-
-This project adheres to the Contributor Covenant 2.1 - see [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md). Report concerns to conduct@blooper.ai.
-
 ## Questions
 
 - Authoring questions: open a discussion under `Authoring`.
 - Bug reports for an existing skill: use `.github/ISSUE_TEMPLATE/bug.md`.
 - Wishlist: `.github/ISSUE_TEMPLATE/skill-request.md`.
+
+For app-side documentation, SDK reference, and tutorials see <https://dev.blooper.ai/docs/>.

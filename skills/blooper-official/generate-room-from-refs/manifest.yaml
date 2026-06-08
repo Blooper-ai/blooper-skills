@@ -1,0 +1,56 @@
+slug: blooper-official/generate-room-from-refs
+version: 1.0.0
+name: Generate Room from References
+description: Generate consistent room images from reference photos in this folder.
+publisher: blooper
+kind: skill
+preinstall: true
+
+applies_to:
+  file_type: ["IMAGE"]
+  folder_name: ["Locations"]
+  min_context_files: 1
+
+tools:
+  - generate_image
+  - list_folder_files
+  - read_file_version
+  - save_as_new_file
+
+params:
+  - name: room_count
+    label: Number of rooms
+    type: integer
+    min: 1
+    max: 8
+    default: 4
+  - name: style
+    label: Style direction
+    type: text
+    optional: true
+  - name: references
+    label: Reference images
+    type: file_versions
+    source: current_folder
+    file_type: IMAGE
+    min: 1
+
+output:
+  produces: file_versions
+  count: from_param.room_count
+  parent_kind: folder
+  parent_from: context.current_folder
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 12
+  max_minutes: 8
+  max_sub_runs: 0
+
+prompt: |
+  You are generating images of rooms from the user's references.
+  The user wants {{room_count}} rooms in style: {{style}}.
+  For each room, save the result with save_as_new_file() in the current folder.

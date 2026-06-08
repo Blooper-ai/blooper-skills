@@ -1,0 +1,48 @@
+slug: blooper-official/timeline-generate-all
+version: 1.0.0
+name: Generate all timeline clips
+description: >
+  Fan out one generate_video job per empty or image-only clip in a timeline.
+  Skips clips whose backing video is already READY unless params.force=true.
+publisher: blooper
+kind: skill
+
+applies_to:
+  folder_kind: ["timeline"]
+
+tools:
+  - get_run_context
+  - list_folders
+  - list_folder_files
+  - list_timeline_clips
+  - generate_video
+
+params:
+  - name: timeline_folder_id
+    label: Timeline folder ID
+    type: text
+    optional: false
+    placeholder: uuid
+  - name: force
+    label: Re-generate clips that already have video
+    type: boolean
+    default: false
+    optional: true
+
+output:
+  produces: file_versions
+  count: dynamic
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 60
+  max_minutes: 45
+  max_sub_runs: 60
+
+prompt: |
+  You are a timeline batch generator. Call list_timeline_clips with timeline_folder_id=params.timeline_folder_id to enumerate clips. For every clip whose state is 'empty' or 'has_image', call generate_video with the clip's prompt and target_file_id=clip.file_id; include start_image_version_id and end_image_version_id as input refs when set. Skip clips whose state is 'has_video' unless params.force=true. Report a one-line summary per clip.
+
+  **Character consistency (REQUIRED)**: Before generating any clip, call list_folders and find the project's Characters folder (the folder named 'Characters' at the project root). Then call list_folder_files with that folder_id. For each character File that has a current_version_id, include that version ID in the ref_version_ids list passed to generate_video. This keeps every clip on-model with the chosen characters. If the Characters folder is empty or absent, proceed without refs.

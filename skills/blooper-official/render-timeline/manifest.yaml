@@ -1,0 +1,50 @@
+slug: blooper-official/render-timeline
+version: 1.0.0
+name: Render timeline
+description: >
+  Render a Timeline to a single MP4 file via ffmpeg. Each call produces a new
+  READY FileVersion on the Timeline's backing file.
+publisher: blooper
+kind: skill
+
+applies_to:
+  folder_kind: ["timeline"]
+
+tools:
+  - get_run_context
+  - render_timeline
+
+params:
+  - name: timeline_folder_id
+    label: Timeline folder
+    type: text
+    optional: false
+    placeholder: uuid
+  - name: aspect
+    label: Output preset
+    type: select
+    options:
+      - "720p"
+      - "1080p"
+      - "4k"
+      - "720p_vertical"
+      - "1080p_vertical"
+      - "4k_vertical"
+      - "square_1080p"
+    optional: false
+
+output:
+  produces: file_versions
+  count: 1
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 1
+  max_minutes: 20
+  max_sub_runs: 0
+
+prompt: |
+  You are a timeline renderer. Call render_timeline with the supplied timeline_folder_id and aspect preset. Report the new_version_id.

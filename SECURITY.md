@@ -21,7 +21,7 @@ We aim to:
 
 In scope:
 
-- Tool code under `skills/*/tools/` or `templates/*/tools/` that could leak credentials, exfiltrate data, or escape the runtime sandbox.
+- Tool code under `skills/*/tools/` that could leak credentials, exfiltrate data, or escape the runtime sandbox.
 - Manifests crafted to bypass `applies_to`, `budget`, or `permissions` enforcement.
 - Vulnerabilities in `scripts/validate.py`, `scripts/build_registry.py`, or the CI workflows that could allow malicious skills to land on `main`.
 

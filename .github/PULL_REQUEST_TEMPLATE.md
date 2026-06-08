@@ -25,7 +25,7 @@ marketplace? Link to a screenshot or short clip of it running if you have one. -
 - [ ] Local validation passes: `python scripts/validate.py`.
 - [ ] Registry regenerated and committed: `python scripts/build_registry.py`.
 - [ ] No internal infrastructure references in manifest or README (no internal hostnames, queue names, repo paths, vendor secrets).
-- [ ] (If new tool code:) `tools/` directory follows the public SDK contract documented in `docs/tool-development.md`.
+- [ ] (If new tool code:) `tools/` directory follows the public SDK contract — see <https://dev.blooper.ai/docs/>.
 - [ ] Budget (`max_provider_calls`, `max_minutes`) is tight and justified.
 
 ## Notes for reviewers

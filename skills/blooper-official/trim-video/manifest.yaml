@@ -1,0 +1,46 @@
+slug: blooper-official/trim-video
+version: 1.0.0
+name: Trim video
+description: >
+  Trim a VIDEO file version to a given [start_sec, end_sec) range. Produces a
+  new READY FileVersion.
+publisher: blooper
+kind: skill
+
+applies_to:
+  file_type: ["VIDEO"]
+
+tools:
+  - get_run_context
+  - trim_video_version
+
+params:
+  - name: file_version_id
+    label: Source video version
+    type: text
+    optional: false
+    placeholder: uuid
+  - name: start_sec
+    label: Start (seconds)
+    type: number
+    optional: false
+  - name: end_sec
+    label: End (seconds)
+    type: number
+    optional: false
+
+output:
+  produces: file_versions
+  count: 1
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 1
+  max_minutes: 5
+  max_sub_runs: 0
+
+prompt: |
+  You are a video trim tool. Call trim_video_version with the supplied file_version_id, start_sec, and end_sec. Report the new_version_id.

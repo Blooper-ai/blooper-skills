@@ -1,79 +1,206 @@
 [
   {
     "applies_to": {
-      "folder_kind": [
-        "image",
-        "video",
-        "moodboard"
+      "file_type": [
+        "IMAGE"
+      ],
+      "folder_name": [
+        "Characters"
       ]
     },
-    "description": "Fan out the same image or video prompt across every connected provider and present one version per provider for the user to pick.",
+    "description": "Generate four expressive emotion variants of a character \u2014 saved as new VERSIONS of the same file, not separate files. Each version is labelled with the emotion (Happy, Sad, \u2026). Self-verifies each variant; if one regresses to a grid/sheet, the retry hangs off the failed attempt as its child so the version tree reflects lineage.\n",
+    "icon_url": null,
+    "name": "Character Emotions",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/character-emotions",
+    "slug": "blooper-official/character-emotions",
+    "tools": [
+      "get_run_context",
+      "generate_image",
+      "describe_image"
+    ],
+    "version": "1.6.0"
+  },
+  {
+    "applies_to": {
+      "file_type": [
+        "VIDEO"
+      ]
+    },
+    "description": "Crop a VIDEO file version to one of three aspect-ratio presets (1:1, 9:16, 16:9) with a centered crop. Produces a new READY FileVersion.\n",
+    "icon_url": null,
+    "name": "Crop video",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/crop-video",
+    "slug": "blooper-official/crop-video",
+    "tools": [
+      "get_run_context",
+      "crop_video_version"
+    ],
+    "version": "1.0.0"
+  },
+  {
+    "applies_to": {
+      "file_type": [
+        "IMAGE"
+      ]
+    },
+    "description": "Run the same prompt through every available image provider, then ask the user to pick the winner and promote it to the file's current version. Useful when you don't know which model will render a given idea best.\n",
     "icon_url": null,
     "name": "Generate in all providers",
     "output_kind": "file_versions",
     "publisher": "blooper",
-    "repo_path": "skills/community-example/generate-in-all-providers",
-    "slug": "community-example/generate-in-all-providers",
+    "repo_path": "skills/blooper-official/generate-in-all-providers",
+    "slug": "blooper-official/generate-in-all-providers",
     "tools": [
-      "list_available_image_providers",
-      "list_available_video_providers",
-      "generate_image",
-      "generate_video",
-      "write_file_version",
-      "request_user_pick"
+      "compare_providers",
+      "get_run_context",
+      "request_user_choice",
+      "set_current_version"
     ],
     "version": "1.0.0"
   },
   {
     "applies_to": {
       "file_type": [
-        "image",
-        "video"
+        "IMAGE"
       ],
-      "parent_folder_name": [
-        "shots",
+      "folder_name": [
+        "Locations"
+      ],
+      "min_context_files": 1
+    },
+    "description": "Generate consistent room images from reference photos in this folder.",
+    "icon_url": null,
+    "name": "Generate Room from References",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/generate-room-from-refs",
+    "slug": "blooper-official/generate-room-from-refs",
+    "tools": [
+      "generate_image",
+      "list_folder_files",
+      "read_file_version",
+      "save_as_new_file"
+    ],
+    "version": "1.0.0"
+  },
+  {
+    "applies_to": {
+      "folder_kind": [
+        "timeline"
+      ]
+    },
+    "description": "Render a Timeline to a single MP4 file via ffmpeg. Each call produces a new READY FileVersion on the Timeline's backing file.\n",
+    "icon_url": null,
+    "name": "Render timeline",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/render-timeline",
+    "slug": "blooper-official/render-timeline",
+    "tools": [
+      "get_run_context",
+      "render_timeline"
+    ],
+    "version": "1.0.0"
+  },
+  {
+    "applies_to": {},
+    "description": "Run the full v2 pipeline (5 LLM stages) on a TEXT script: scene partition \u2192 director shot list with camera movement + duration + per-shot character presence \u2192 character detection \u2192 dedup with appearance/clothing/role \u2192 photorealistic image prompts. Persists a storyboard with scenes/shots fully populated and creates character placeholders in the Characters folder.\n",
+    "icon_url": "skills/blooper-official/storyboard-from-script/icon.svg",
+    "name": "Storyboard from script",
+    "output_kind": "metadata_only",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/storyboard-from-script",
+    "slug": "blooper-official/storyboard-from-script",
+    "tools": [
+      "generate_storyboard_from_script"
+    ],
+    "version": "2.0.0"
+  },
+  {
+    "applies_to": {
+      "folder_kind": [
         "storyboard"
       ]
     },
-    "description": "Make a new version of a single shot with a tweak (style, camera, prompt edit) while keeping the rest of the storyboard locked.",
+    "description": "Fan out one generate_image (empty shots) or regenerate_shot (non-empty when force=true) call per shot in a storyboard. v1.2.0 filters character refs per-shot using shot.chars so each shot only gets the people who are actually in it.\n",
     "icon_url": null,
-    "name": "Regenerate shot",
+    "name": "Generate all storyboard shots",
     "output_kind": "file_versions",
     "publisher": "blooper",
-    "repo_path": "skills/community-example/regenerate-shot",
-    "slug": "community-example/regenerate-shot",
+    "repo_path": "skills/blooper-official/storyboard-generate-all",
+    "slug": "blooper-official/storyboard-generate-all",
     "tools": [
-      "read_file_version",
+      "get_run_context",
+      "list_folders",
+      "list_folder_files",
+      "list_storyboard_shots",
       "generate_image",
-      "generate_video",
-      "write_file_version"
+      "regenerate_shot"
+    ],
+    "version": "1.2.0"
+  },
+  {
+    "applies_to": {
+      "folder_kind": [
+        "storyboard"
+      ]
+    },
+    "description": "Create a new Timeline structurally seeded from a Storyboard: one TimelineScene per SB Scene, one TimelineClip per Shot, with the shot's current image as the clip's start image when available. Does not generate any video; subsequent generation is up to the user or the timeline-generate-all skill.\n",
+    "icon_url": null,
+    "name": "Create timeline from storyboard",
+    "output_kind": "metadata_only",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/timeline-from-storyboard",
+    "slug": "blooper-official/timeline-from-storyboard",
+    "tools": [
+      "get_run_context",
+      "find_videos_folder",
+      "create_timeline"
+    ],
+    "version": "1.0.0"
+  },
+  {
+    "applies_to": {
+      "folder_kind": [
+        "timeline"
+      ]
+    },
+    "description": "Fan out one generate_video job per empty or image-only clip in a timeline. Skips clips whose backing video is already READY unless params.force=true.\n",
+    "icon_url": null,
+    "name": "Generate all timeline clips",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/timeline-generate-all",
+    "slug": "blooper-official/timeline-generate-all",
+    "tools": [
+      "get_run_context",
+      "list_folders",
+      "list_folder_files",
+      "list_timeline_clips",
+      "generate_video"
     ],
     "version": "1.0.0"
   },
   {
     "applies_to": {
       "file_type": [
-        "script",
-        "screenplay",
-        "text"
-      ],
-      "folder_kind": [
-        "storyboard",
-        "script"
+        "VIDEO"
       ]
     },
-    "description": "Turn a screenplay or beat sheet into a shot-by-shot storyboard with one image per shot.",
-    "icon_url": "skills/community-example/storyboard-from-script/icon.svg",
-    "name": "Storyboard from script",
+    "description": "Trim a VIDEO file version to a given [start_sec, end_sec) range. Produces a new READY FileVersion.\n",
+    "icon_url": null,
+    "name": "Trim video",
     "output_kind": "file_versions",
     "publisher": "blooper",
-    "repo_path": "skills/community-example/storyboard-from-script",
-    "slug": "community-example/storyboard-from-script",
+    "repo_path": "skills/blooper-official/trim-video",
+    "slug": "blooper-official/trim-video",
     "tools": [
-      "parse_script",
-      "draft_shot_list",
-      "generate_image",
-      "write_file_version"
+      "get_run_context",
+      "trim_video_version"
     ],
     "version": "1.0.0"
   }

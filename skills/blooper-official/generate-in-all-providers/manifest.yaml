@@ -1,0 +1,57 @@
+slug: blooper-official/generate-in-all-providers
+version: 1.0.0
+name: Generate in all providers
+description: >
+  Run the same prompt through every available image provider, then ask the
+  user to pick the winner and promote it to the file's current version.
+  Useful when you don't know which model will render a given idea best.
+publisher: blooper
+kind: skill
+preinstall: true
+
+applies_to:
+  file_type: ["IMAGE"]
+
+tools:
+  - compare_providers
+  - get_run_context
+  - request_user_choice
+  - set_current_version
+
+params:
+  - name: prompt
+    label: Prompt
+    type: text
+    optional: false
+    placeholder: "e.g. 'a misty pine forest at golden hour'"
+
+output:
+  produces: file_versions
+  count: dynamic
+  parent_kind: file
+  parent_from: context.current_file
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 12
+  max_minutes: 10
+  max_sub_runs: 0
+
+prompt: |
+  You are running the user's prompt through every image provider so they can compare side-by-side and pick a winner.
+
+  Step 1: call get_run_context to learn project_id, file_id, and current_version_id. The new versions you generate will attach to this file. If file_id is null, tell the user this skill must be run from an image file and stop.
+
+  Step 2: call compare_providers with prompt={{prompt}} and parent_version_id=current_version_id. The tool fans out one generate_image call per registered image provider against the same prompt, all hanging off the current version, and returns a list of {provider, version_id, label} entries. If it fails or returns zero results, surface the error and stop.
+
+  Step 3: call request_user_choice with one option per returned entry. Option label = the provider's display name (e.g. "FLUX.2 Max", "Nano Banana"), option value = the corresponding version_id (as string). Title: "Pick the winning generation". Description: "All providers ran the same prompt. Choose the version you want as the new current.".
+
+  Step 4: when the user picks, call set_current_version with file_id=context.current_file and version_id=<the chosen version_id>. Report the provider name + final version_id back in a one-line summary. If the user denies / cancels the choice, leave all generated versions in place (they're already in the version tree) and tell the user nothing was promoted.
+
+  Hard rules:
+    - Do NOT call generate_image directly; compare_providers does the fan-out so prompt/seed/refs stay aligned across providers.
+    - Do NOT loop / regenerate. One pass, one choice, done.
+    - Do NOT mutate any other file.

@@ -1,0 +1,68 @@
+slug: blooper-official/storyboard-generate-all
+version: 1.2.0
+name: Generate all storyboard shots
+description: >
+  Fan out one generate_image (empty shots) or regenerate_shot (non-empty when
+  force=true) call per shot in a storyboard. v1.2.0 filters character refs
+  per-shot using shot.chars so each shot only gets the people who are
+  actually in it.
+publisher: blooper
+kind: skill
+
+applies_to:
+  folder_kind: ["storyboard"]
+
+tools:
+  - get_run_context
+  - list_folders
+  - list_folder_files
+  - list_storyboard_shots
+  - generate_image
+  - regenerate_shot
+
+params:
+  - name: storyboard_folder_id
+    label: Storyboard folder ID
+    type: text
+    optional: false
+    placeholder: uuid
+  - name: force
+    label: Re-generate non-empty shots
+    type: boolean
+    default: false
+    optional: true
+
+output:
+  produces: file_versions
+  count: dynamic
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 50
+  max_minutes: 30
+  max_sub_runs: 50
+
+prompt: |
+  You are a storyboard-batch generator. Call list_storyboard_shots with storyboard_folder_id=params.storyboard_folder_id. Each returned shot includes a `chars` array — the canonical character names that are actually on screen in that beat (set by the storyboard pipeline's stage-4 dedup; matches Character placeholder file names exactly). Empty `chars` = nobody on screen (establishing wide, insert of an object).
+
+  Before the per-shot loop:
+    1. Call list_folders. Locate the project's Characters folder AND its Locations folder.
+    2. Call list_folder_files on each. Build two dicts in memory:
+         characters_by_name = {file.name: file.current_version_id for file in Characters folder if file.current_version_id is not None}
+         location_version_ids = [file.current_version_id for file in Locations folder if file.current_version_id is not None]
+
+  For each shot:
+    - Build the per-shot refs list: ref_version_ids = [characters_by_name[name] for name in shot.chars if name in characters_by_name] + location_version_ids
+      HARD RULE: NEVER pass a character version whose name is not in shot.chars. Passing every character to every shot is what caused the Ella-everywhere bug — the model collapses to one dominant face. If shot.chars is empty, pass ZERO character refs.
+      If shot.chars contains a name that is NOT in characters_by_name (the placeholder was never filled in), skip that name silently and continue with the rest. Do not invent a substitute.
+    - If shot.is_empty=true: call generate_image with params={prompt: shot.prompt or shot.shot_name, provider: 'FLUX2_MAX'}, target_file_id=shot.file_id, and ref_version_ids=<the per-shot list above>. This fills the empty placeholder in-place.
+    - If shot.is_empty=false AND params.force=true: call regenerate_shot with file_id=shot.file_id. regenerate_shot inherits the existing version's refs — do NOT pass a fresh list. Do NOT call generate_image with target_file_id on a non-empty placeholder — it rejects with 'target_file is not empty'.
+    - If shot.is_empty=false AND params.force=false: skip the shot.
+  Report a one-line summary per shot that includes the list of character names actually injected (e.g. "Shot 003: filled, chars=[Mara, Doc]").
+
+  Prompt hygiene: pass shot.prompt UNCHANGED. Do NOT append physical descriptors like 'with red hair' or 'in the sun-dappled garden' — those belong in the reference images, not the prompt. If the stored prompt already contains character or location appearance text, leave a note in your narration so the user can clean it, but do not 'improve' the prompt yourself.
+
+  Folder edge cases: if Characters is empty or absent, characters_by_name is {} and shots with non-empty shot.chars proceed with location refs only — narrate this so the user knows to populate Characters for cohesion. If Locations is empty or absent, location_version_ids is [] and shots proceed with character refs only.

@@ -17,13 +17,13 @@ A skill is a single declarative `manifest.yaml` (plus an optional README, icon, 
 ## Adding a skill
 
 1. Fork this repo.
-2. Copy `templates/starter-skill/` to `skills/<your-publisher>/<your-skill-slug>/`.
-3. Edit `manifest.yaml`, write the README, drop in a 64x64 SVG icon.
+2. Create `skills/<your-publisher>/<your-skill-slug>/` and add a `manifest.yaml` (use any existing skill under `skills/blooper-official/` as a starting point).
+3. Write the README, drop in an optional 64x64 SVG icon.
 4. Validate locally:
    ```sh
-   pip install -r scripts/requirements.txt
-   python scripts/validate.py --all
-   python scripts/build_registry.py --out registry.json
+   pip install pyyaml jsonschema
+   python scripts/validate.py
+   python scripts/build_registry.py
    ```
 5. Commit the regenerated `registry.json` alongside your skill.
 6. Open a pull request using the PR template.
@@ -34,33 +34,32 @@ Full step-by-step in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ```
 blooper-skills/
-├── schema/                  JSON Schema for one manifest.yaml
-├── scripts/                 validate, build_registry, export_schema
-├── skills/<publisher>/<slug>/   one directory per skill
-├── templates/starter-skill/ copy-paste starting point
-├── docs/                    authoring guides
-└── registry.json            auto-generated index of every skill
+├── schema/                       JSON Schema for one manifest.yaml
+├── scripts/                      validate, build_registry
+├── skills/<publisher>/<slug>/    one directory per skill
+└── registry.json                 auto-generated index of every skill
 ```
 
 ## Reference skills
 
-Five end-to-end examples live under `skills/blooper/`. Each demonstrates a different pattern. A narrated tour is in [`docs/examples-tour.md`](./docs/examples-tour.md).
+The reference skills live under `skills/blooper-official/`. Each one is a real, production skill from the Blooper app — they're the canonical examples of what a Blooper skill looks like end-to-end.
 
-| Skill | Pattern |
-| --- | --- |
-| `blooper/trim-video` | Minimal deterministic single-tool skill. |
-| `blooper/crop-video` | Same shape with a `select` parameter for aspect presets. |
-| `blooper/character-emotions` | Self-verify retry loop using a vision check tool. |
-| `blooper/generate-room-from-refs` | Folder-scoped skill with `file_versions` ref input. |
-| `community-example/generate-in-all-providers` | Provider fan-out and human-in-the-loop pick. |
+| Skill                                          | Pattern                                                                  |
+| ---------------------------------------------- | ------------------------------------------------------------------------ |
+| `blooper-official/trim-video`                  | Minimal deterministic single-tool skill.                                  |
+| `blooper-official/crop-video`                  | Same shape with a `select` parameter for aspect presets.                  |
+| `blooper-official/render-timeline`             | Single-tool skill scoped to a folder kind.                                |
+| `blooper-official/character-emotions`          | Self-verify retry loop using a vision check tool, version-tree lineage.   |
+| `blooper-official/generate-room-from-refs`     | Folder-scoped skill with `file_versions` ref input.                       |
+| `blooper-official/generate-in-all-providers`   | Provider fan-out and human-in-the-loop pick.                              |
+| `blooper-official/storyboard-from-script`      | Heavy LLM-pipeline skill wrapped behind a single runtime tool.            |
+| `blooper-official/storyboard-generate-all`     | Batch fan-out across a folder of placeholders with per-shot ref filtering. |
+| `blooper-official/timeline-from-storyboard`    | Structural / metadata-only seeding skill.                                 |
+| `blooper-official/timeline-generate-all`       | Batch fan-out of video generations with project-wide character refs.      |
 
 ## Docs
 
-- [`docs/authoring.md`](./docs/authoring.md) - narrative authoring guide.
-- [`docs/schema-reference.md`](./docs/schema-reference.md) - field-by-field manifest reference.
-- [`docs/tool-development.md`](./docs/tool-development.md) - when and how to ship a custom tool.
-- [`docs/examples-tour.md`](./docs/examples-tour.md) - guided tour of the reference skills.
-- App-side docs: <https://dev.blooper.ai/docs/>.
+App-side docs, SDK reference, and authoring tutorials live at <https://dev.blooper.ai/docs/>.
 
 ## FAQ
 
@@ -79,7 +78,3 @@ Five end-to-end examples live under `skills/blooper/`. Each demonstrates a diffe
 ## Security
 
 Found a problem in a skill's tool code or in the registry pipeline? See [`SECURITY.md`](./SECURITY.md) for the private disclosure process.
-
-## Code of conduct
-
-This project follows the Contributor Covenant 2.1 - see [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md). Report concerns to conduct@blooper.ai.

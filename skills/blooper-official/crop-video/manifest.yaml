@@ -1,0 +1,46 @@
+slug: blooper-official/crop-video
+version: 1.0.0
+name: Crop video
+description: >
+  Crop a VIDEO file version to one of three aspect-ratio presets
+  (1:1, 9:16, 16:9) with a centered crop. Produces a new READY FileVersion.
+publisher: blooper
+kind: skill
+
+applies_to:
+  file_type: ["VIDEO"]
+
+tools:
+  - get_run_context
+  - crop_video_version
+
+params:
+  - name: file_version_id
+    label: Source video version
+    type: text
+    optional: false
+    placeholder: uuid
+  - name: aspect
+    label: Aspect ratio
+    type: select
+    options:
+      - "1:1"
+      - "9:16"
+      - "16:9"
+    optional: false
+
+output:
+  produces: file_versions
+  count: 1
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 1
+  max_minutes: 5
+  max_sub_runs: 0
+
+prompt: |
+  You are a video crop tool. Call crop_video_version with the supplied file_version_id and aspect preset. Report the new_version_id.
