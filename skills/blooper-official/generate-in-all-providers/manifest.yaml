@@ -7,6 +7,7 @@ description: >
   Useful when you don't know which model will render a given idea best.
 publisher: blooper
 kind: skill
+license: Apache-2.0
 preinstall: true
 
 applies_to:

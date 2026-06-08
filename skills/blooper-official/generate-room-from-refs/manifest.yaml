@@ -4,6 +4,7 @@ name: Generate Room from References
 description: Generate consistent room images from reference photos in this folder.
 publisher: blooper
 kind: skill
+license: Apache-2.0
 preinstall: true
 
 applies_to:

@@ -73,7 +73,9 @@ App-side docs, SDK reference, and authoring tutorials live at <https://dev.bloop
 
 **Can I include a paid model in my budget?** Yes - declare it in `budget.max_provider_calls`. Reviewers will push back on bloated budgets; start tight.
 
-**What license?** MIT - see [`LICENSE`](./LICENSE). By contributing a skill, you license your contribution under MIT.
+**What license?** Apache-2.0 - see [`LICENSE`](./LICENSE). By contributing a skill, you license your contribution under Apache-2.0 unless your manifest declares a different (permissive) SPDX identifier.
+
+**Plugin licensing**: each skill manifest may declare a `license` field with one of the accepted SPDX identifiers (Apache-2.0 — the default, MIT, BSD-2-Clause, BSD-3-Clause, ISC). Copyleft and source-available licenses are rejected by PR validation. Full policy and rationale in [`LICENSING.md`](./LICENSING.md).
 
 ## Security
 

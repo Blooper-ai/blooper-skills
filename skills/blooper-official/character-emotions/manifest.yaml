@@ -9,6 +9,7 @@ description: >
   version tree reflects lineage.
 publisher: blooper
 kind: skill
+license: Apache-2.0
 preinstall: true
 
 applies_to:

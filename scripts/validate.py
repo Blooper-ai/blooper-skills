@@ -42,6 +42,52 @@ SKILLS_ROOT = REPO_ROOT / "skills"
 
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 
+# License policy: see LICENSING.md.
+DEFAULT_LICENSE = "Apache-2.0"
+ACCEPTED_LICENSES = frozenset(
+    {"Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause", "ISC"}
+)
+# Patterns for SPDX identifiers we explicitly reject so we can emit a
+# policy-aware error rather than the generic "not in enum" message.
+REJECTED_LICENSE_PATTERNS = (
+    re.compile(r"^GPL(-.*)?$", re.IGNORECASE),
+    re.compile(r"^LGPL(-.*)?$", re.IGNORECASE),
+    re.compile(r"^AGPL(-.*)?$", re.IGNORECASE),
+    re.compile(r"^SSPL(-.*)?$", re.IGNORECASE),
+    re.compile(r"^BUSL(-.*)?$", re.IGNORECASE),  # Business Source License
+    re.compile(r"^BSL(-.*)?$", re.IGNORECASE),
+    re.compile(r"^Elastic(-.*)?$", re.IGNORECASE),
+    re.compile(r"^CC-BY-NC(-.*)?$", re.IGNORECASE),
+    re.compile(r"^Commons-Clause$", re.IGNORECASE),
+    re.compile(r"^Proprietary$", re.IGNORECASE),
+    re.compile(r"^.*-NC(-.*)?$", re.IGNORECASE),  # any non-commercial CC variant
+)
+
+
+def _check_license(value) -> str | None:
+    """Return an error string when ``value`` violates the license policy.
+
+    ``value`` is the raw ``license`` field from the manifest (may be ``None``
+    or missing — both fall back to :data:`DEFAULT_LICENSE`). Schema validation
+    has already rejected non-string/non-null values, so here we only enforce
+    the additional policy text from ``LICENSING.md``.
+    """
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        return None  # caught by JSON Schema already
+    if value in ACCEPTED_LICENSES:
+        return None
+    for pattern in REJECTED_LICENSE_PATTERNS:
+        if pattern.match(value):
+            return (
+                f"license '{value}' is on the rejected list. See LICENSING.md."
+            )
+    accepted = ", ".join(sorted(ACCEPTED_LICENSES))
+    return (
+        f"license '{value}' is not in the accepted SPDX list ({accepted})."
+    )
+
 
 @dataclass
 class ManifestReport:
@@ -160,6 +206,15 @@ def validate_one(
         report.errors.append(
             f"{loc}: version '{version}' is not semver (X.Y.Z)"
         )
+
+    # License policy: omitted/null is treated as the repo default; explicit
+    # values must be on the accepted SPDX list, and known-rejected SPDX IDs
+    # get a policy-specific error.
+    license_err = _check_license(data.get("license"))
+    if license_err:
+        line = _line_for_key(raw_text, "license")
+        loc = f"{manifest_path}:{line}" if line else str(manifest_path)
+        report.errors.append(f"{loc}: {license_err}")
 
     readme = manifest_path.parent / "README.md"
     if not readme.exists():

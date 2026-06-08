@@ -46,6 +46,7 @@ skills/<publisher>/<skill-slug>/
 - `output.count` - `"dynamic"`, an integer, or `"from_param.<param_name>"`.
 - `tools` - list every tool the skill calls. Tool names not provided by the runtime AND not shipped under `tools/` will fail at install.
 - `budget` - cap provider calls and minutes. Reviewers will push back on bloated budgets; start tight.
+- `license` - optional SPDX identifier. Allowed: `Apache-2.0` (default when omitted), `MIT`, `BSD-2-Clause`, `BSD-3-Clause`, `ISC`. Copyleft (GPL/LGPL/AGPL), SSPL, BSL/Elastic and other source-available or non-commercial licenses are rejected by PR validation. See [`LICENSING.md`](./LICENSING.md) for the full policy.
 
 ## Step 4 - Optional: ship a custom tool
 

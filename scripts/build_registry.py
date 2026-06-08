@@ -42,6 +42,7 @@ except ImportError:  # pragma: no cover
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from validate import (  # type: ignore  # noqa: E402
+    DEFAULT_LICENSE,
     REPO_ROOT,
     SCHEMA_PATH,
     SKILLS_ROOT,
@@ -63,6 +64,14 @@ def manifest_to_entry(manifest_path: Path, data: dict[str, Any]) -> dict[str, An
     elif (manifest_path.parent / "icon.svg").exists():
         icon_url = f"{repo_path}/icon.svg"
 
+    # License: published entry always carries the resolved value (never null);
+    # an omitted/null manifest field falls back to the repo default per
+    # LICENSING.md.
+    raw_license = data.get("license")
+    license_value = (
+        raw_license if isinstance(raw_license, str) and raw_license else DEFAULT_LICENSE
+    )
+
     return {
         "slug": data.get("slug"),
         "version": data.get("version"),
@@ -72,6 +81,7 @@ def manifest_to_entry(manifest_path: Path, data: dict[str, Any]) -> dict[str, An
         "applies_to": data.get("applies_to") or {},
         "tools": list(data.get("tools") or []),
         "output_kind": (data.get("output") or {}).get("produces"),
+        "license": license_value,
         "repo_path": repo_path,
         "icon_url": icon_url,
     }

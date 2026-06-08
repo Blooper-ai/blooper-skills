@@ -703,6 +703,13 @@
       "description": "Optional LLM model identifier. When null, the platform default is used. Skill authors should leave this null unless they have a specific reason to pin a model.",
       "title": "Model"
     },
+    "license": {
+      "type": ["string", "null"],
+      "enum": [null, "Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause", "ISC"],
+      "default": null,
+      "title": "License",
+      "description": "SPDX license identifier. Allowed values: Apache-2.0 (default), MIT, BSD-2-Clause, BSD-3-Clause, ISC. Rejected licenses (GPL family, SSPL, non-commercial) will fail PR validation. See LICENSING.md."
+    },
     "tools": {
       "items": {
         "type": "string"

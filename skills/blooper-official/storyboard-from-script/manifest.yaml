@@ -9,6 +9,7 @@ description: >
   populated and creates character placeholders in the Characters folder.
 publisher: blooper
 kind: skill
+license: Apache-2.0
 preinstall: true
 icon: icon.svg
 
