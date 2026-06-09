@@ -65,6 +65,22 @@
     "version": "1.0.0"
   },
   {
+    "applies_to": {},
+    "description": "Run the same prompt through every from-scratch image provider; each provider's render lands as its own new File in the current folder. Use this when you want to keep every result side-by-side rather than picking one winner. The on-file companion skill (generate-in-all-providers) does the opposite \u2014 it appends new versions to a single existing file.\n",
+    "icon_url": null,
+    "license": "Apache-2.0",
+    "name": "Generate one file per provider",
+    "output_kind": "files",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/generate-in-all-providers-in-folder",
+    "slug": "blooper-official/generate-in-all-providers-in-folder",
+    "tools": [
+      "get_run_context",
+      "generate_image"
+    ],
+    "version": "1.0.0"
+  },
+  {
     "applies_to": {
       "file_type": [
         "IMAGE"
@@ -111,7 +127,11 @@
     "version": "2.0.0"
   },
   {
-    "applies_to": {},
+    "applies_to": {
+      "file_type": [
+        "TEXT"
+      ]
+    },
     "description": "Run the full v2 pipeline (5 LLM stages) on a TEXT script: scene partition \u2192 director shot list with camera movement + duration + per-shot character presence \u2192 character detection \u2192 dedup with appearance/clothing/role \u2192 photorealistic image prompts. Persists a storyboard with scenes/shots fully populated and creates character placeholders in the Characters folder.\n",
     "icon_url": "skills/blooper-official/storyboard-from-script/icon.svg",
     "license": "Apache-2.0",
@@ -123,7 +143,7 @@
     "tools": [
       "generate_storyboard_from_script"
     ],
-    "version": "2.0.1"
+    "version": "2.1.0"
   },
   {
     "applies_to": {

@@ -1,5 +1,5 @@
 slug: blooper-official/storyboard-from-script
-version: 2.0.1
+version: 2.1.0
 name: Storyboard from script
 description: >
   Run the full v2 pipeline (5 LLM stages) on a TEXT script: scene partition →
@@ -13,7 +13,9 @@ license: Apache-2.0
 preinstall: true
 icon: icon.svg
 
-applies_to: {}
+applies_to:
+  file_type:
+    - TEXT
 
 tools:
   - generate_storyboard_from_script

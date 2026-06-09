@@ -1,0 +1,67 @@
+slug: blooper-official/generate-in-all-providers-in-folder
+version: 1.0.0
+name: Generate one file per provider
+description: >
+  Run the same prompt through every from-scratch image provider; each
+  provider's render lands as its own new File in the current folder.
+  Use this when you want to keep every result side-by-side rather than
+  picking one winner. The on-file companion skill
+  (generate-in-all-providers) does the opposite — it appends new
+  versions to a single existing file.
+publisher: blooper
+kind: skill
+license: Apache-2.0
+preinstall: true
+
+applies_to: {}
+
+tools:
+  - get_run_context
+  - generate_image
+
+params:
+  - name: prompt
+    label: Prompt
+    type: text
+    optional: false
+    placeholder: "e.g. 'a misty pine forest at golden hour'"
+
+output:
+  produces: files
+  count: dynamic
+  parent_kind: folder
+  parent_from: context.current_folder
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 6
+  max_minutes: 10
+  max_sub_runs: 0
+
+prompt: |
+  You are creating one new image File per from-scratch image provider in the user's current folder, all from the same prompt.
+
+  Step 1: call get_run_context to learn project_id and current_folder_id. If current_folder_id is null (the chat is anchored to a file, not a folder), tell the user this skill only runs from a folder chat — suggest they pick `generate-in-all-providers` (the on-file companion) instead — then stop.
+
+  Step 2: for EACH of these providers, in parallel where possible, call generate_image with:
+    - prompt={{prompt}}
+    - provider=<the provider id>
+    - folder_id=current_folder_id
+    - parent_version_id=null
+    - name="<provider display name> — <short prompt summary>"
+  Providers to fan out across (one call each):
+    - FLUX2_MAX           (display "FLUX.2 Max")
+    - NANO_BANANA         (display "Nano Banana")
+    - OPENAI_IMAGE        (display "OpenAI Image")
+  Each call creates a NEW File in the folder; the new version on that file is the rendered output.
+
+  Step 3: once all three calls return, summarise back to the user: one line per provider with the file_id and the provider display name. Do NOT promote any of them — they're all peers, the user decides which to keep.
+
+  Hard rules:
+    - One call per provider. Do not loop or retry on the same provider.
+    - Do NOT set target_file_id — every call must create a NEW File row.
+    - If a provider call fails, surface the error for that one provider and keep going with the rest. Do not abort the whole run unless all three fail.
+    - Do NOT call compare_providers — that tool appends VERSIONS to one file; this skill creates separate files.
