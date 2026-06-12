@@ -30,6 +30,7 @@
   "generate_storyboard_from_script": 5,
   "generate_video": 1,
   "get_run_context": 0,
+  "judge_image": 1,
   "list_folder_files": 0,
   "list_folders": 0,
   "list_storyboard_shots": 0,
