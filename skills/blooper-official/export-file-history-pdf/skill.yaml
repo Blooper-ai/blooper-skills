@@ -1,5 +1,5 @@
 slug: blooper-official/export-file-history-pdf
-version: 1.1.0
+version: 1.2.0
 name: Export file history (PDF)
 description: >
   Export version history as a PDF. On a file: that file's complete history —
@@ -40,6 +40,7 @@ params:
   - name: include_provenance
     label: Include how references were made (recursive, full tree)
     type: boolean
+    default: true
     optional: true
   - name: max_depth
     # Optional cap. Omit to walk the ENTIRE provenance tree to its leaves
