@@ -1,5 +1,5 @@
 slug: blooper-official/export-file-history-pdf
-version: 1.3.0
+version: 1.4.0
 name: Export file history (PDF)
 description: >
   Export version history as a PDF. On a file: that file's complete history —
@@ -29,14 +29,9 @@ tools:
   - export_file_history_pdf
 
 params:
-  - name: file_id
-    label: File
-    type: text
-    # Pre-filled from the surrounding file context — same pattern as
-    # trim/crop-video. The tool falls back to the anchored file when omitted.
-    optional: true
-    prefill_from: context.current_file_id
-    placeholder: uuid
+  # No file param: the tool operates on whatever the run is anchored on — the
+  # open file, or the timeline/storyboard folder — resolved server-side from
+  # the run context. (On a folder anchor a file field would be meaningless.)
   - name: include_provenance
     label: Include how references were made (recursive, full tree)
     type: boolean
