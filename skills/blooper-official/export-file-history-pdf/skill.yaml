@@ -32,15 +32,15 @@ params:
     prefill_from: context.current_file_id
     placeholder: uuid
   - name: include_provenance
-    label: Include how references were made (recursive)
+    label: Include how references were made (recursive, full tree)
     type: boolean
     optional: true
   - name: max_depth
-    label: Max provenance depth
+    # Optional cap. Omit to walk the ENTIRE provenance tree to its leaves
+    # (the default) — the cycle/dedupe guard guarantees termination.
+    label: "Max provenance depth (default: entire tree)"
     type: integer
     min: 1
-    max: 6
-    default: 3
     optional: true
 
 output:

@@ -22,8 +22,8 @@ provider calls.
 | Param                | Type    | Required | Default | Notes                                                                                          |
 | -------------------- | ------- | -------- | ------- | ---------------------------------------------------------------------------------------------- |
 | `file_id`            | text    | no       | anchored file | UUID of the file to export. Pre-filled from the open file; omit to use it.               |
-| `include_provenance` | boolean | no       | false   | Also append the **recursive cross-file provenance** of the current version.                    |
-| `max_depth`          | integer | no       | 3       | How deep to follow the provenance graph (1–6). Cycles and shared inputs are cut automatically. |
+| `include_provenance` | boolean | no       | false        | Also append the **recursive cross-file provenance** of the current version.                                              |
+| `max_depth`          | integer | no       | entire tree  | Optional cap on how deep to follow the provenance graph. Omit to walk the **whole tree** — cycles and shared inputs are cut automatically, so it always terminates. |
 
 ## Example chat invocation
 
