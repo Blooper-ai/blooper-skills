@@ -1,19 +1,25 @@
 slug: blooper-official/export-file-history-pdf
-version: 1.0.0
+version: 1.1.0
 name: Export file history (PDF)
 description: >
-  Export a file's complete version history as a PDF — every version from the
-  first to current, with each version's prompt, model, mode, the references
-  used, and a thumbnail. Turn on "include provenance" to also append the
-  recursive cross-file provenance of the current version (how each reference
-  was made, and how THEIR references were made). The PDF lands in the
-  project's Exports folder, and you get an "export ready" notification.
+  Export version history as a PDF. On a file: that file's complete history —
+  every version from the first to current, with prompt, model, mode, the
+  references used, and a thumbnail. On a timeline or storyboard: the aggregate
+  history of every clip/shot inside it, one section per file. Turn on "include
+  provenance" to also append the recursive cross-file provenance of the current
+  version (how each reference was made, and how THEIR references were made). The
+  PDF lands in the project's Exports folder, and you get an "export ready"
+  notification.
 publisher: blooper
 kind: skill
 
 license: Apache-2.0
+# Anchored on a file → that file's history; anchored on a timeline or
+# storyboard → the aggregate history of its clips/shots. file_type and
+# folder_kind are alternatives here (the run is on a file OR a folder).
 applies_to:
   file_type: ["IMAGE", "VIDEO", "TEXT"]
+  folder_kind: ["timeline", "storyboard"]
 
 runtime: deterministic
 deterministic:
