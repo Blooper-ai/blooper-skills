@@ -45,6 +45,27 @@
   {
     "applies_to": {
       "file_type": [
+        "IMAGE",
+        "VIDEO",
+        "TEXT"
+      ]
+    },
+    "description": "Export a file's complete version history as a PDF \u2014 every version from the first to current, with each version's prompt, model, mode, the references used, and a thumbnail. Turn on \"include provenance\" to also append the recursive cross-file provenance of the current version (how each reference was made, and how THEIR references were made). The PDF lands in the project's Exports folder, and you get an \"export ready\" notification.\n",
+    "icon_url": null,
+    "license": "Apache-2.0",
+    "name": "Export file history (PDF)",
+    "output_kind": "file_versions",
+    "publisher": "blooper",
+    "repo_path": "skills/blooper-official/export-file-history-pdf",
+    "slug": "blooper-official/export-file-history-pdf",
+    "tools": [
+      "export_file_history_pdf"
+    ],
+    "version": "1.0.0"
+  },
+  {
+    "applies_to": {
+      "file_type": [
         "IMAGE"
       ]
     },

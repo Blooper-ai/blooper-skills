@@ -1,0 +1,62 @@
+slug: blooper-official/export-file-history-pdf
+version: 1.0.0
+name: Export file history (PDF)
+description: >
+  Export a file's complete version history as a PDF — every version from the
+  first to current, with each version's prompt, model, mode, the references
+  used, and a thumbnail. Turn on "include provenance" to also append the
+  recursive cross-file provenance of the current version (how each reference
+  was made, and how THEIR references were made). The PDF lands in the
+  project's Exports folder, and you get an "export ready" notification.
+publisher: blooper
+kind: skill
+
+license: Apache-2.0
+applies_to:
+  file_type: ["IMAGE", "VIDEO", "TEXT"]
+
+runtime: deterministic
+deterministic:
+  tool: export_file_history_pdf
+
+tools:
+  - export_file_history_pdf
+
+params:
+  - name: file_id
+    label: File
+    type: text
+    # Pre-filled from the surrounding file context — same pattern as
+    # trim/crop-video. The tool falls back to the anchored file when omitted.
+    optional: true
+    prefill_from: context.current_file_id
+    placeholder: uuid
+  - name: include_provenance
+    label: Include how references were made (recursive)
+    type: boolean
+    optional: true
+  - name: max_depth
+    label: Max provenance depth
+    type: integer
+    min: 1
+    max: 6
+    default: 3
+    optional: true
+
+output:
+  produces: file_versions
+  count: 1
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  # Deterministic runtime: export_file_history_pdf is cost 0 (pure
+  # data + PDF render, no provider calls).
+  max_provider_calls: 0
+  max_minutes: 5
+  max_sub_runs: 0
+
+prompt: |
+  Deterministic skill — calls export_file_history_pdf with the supplied params. No LLM is invoked at run-time; this prompt is only kept for the marketplace UI.
