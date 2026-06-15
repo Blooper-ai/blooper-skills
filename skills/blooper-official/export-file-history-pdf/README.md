@@ -1,10 +1,13 @@
 # Export file history (PDF)
 
-Export a file's complete version history as a **PDF** that lands in the
-project's **Exports** folder. The document lists every version from the first
-to the current one — for each: created time, status, model/provider, mode,
-the prompt, the references it consumed, and a thumbnail. When you're done,
-you get an "export ready" notification that links straight to the PDF.
+Export version history as a **PDF** that lands in the project's **Exports**
+folder, with an "export ready" notification that links straight to it.
+
+- On a **file**: that file's complete history — every version from the first
+  to the current one, each with created time, status, model/provider, mode,
+  the prompt, the references it consumed, and a thumbnail.
+- On a **timeline or storyboard**: the **aggregate** history of every clip/shot
+  inside it (one section per file).
 
 Deterministic (`max_provider_calls=0`) — pure data + PDF render, no LLM and no
 provider calls.
