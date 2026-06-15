@@ -23,6 +23,7 @@
   "describe_file_history": 0,
   "describe_image": 1,
   "empty_trash": 0,
+  "export_file_history_pdf": 0,
   "export_timeline": 0,
   "find_storyboards_folder": 0,
   "find_videos_folder": 0,
