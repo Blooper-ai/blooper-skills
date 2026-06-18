@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-If you discover a security issue in a skill's tool code, in `scripts/`, or in the registry pipeline, please report it privately. Do NOT open a public GitHub issue.
+If you discover a security issue in a skill's tool code or manifest, please report it privately. Do NOT open a public GitHub issue.
 
 Email **security@blooper.ai** with:
 
@@ -23,7 +23,7 @@ In scope:
 
 - Tool code under `skills/*/tools/` that could leak credentials, exfiltrate data, or escape the runtime sandbox.
 - Manifests crafted to bypass `applies_to`, `budget`, or `permissions` enforcement.
-- Vulnerabilities in `scripts/validate.py`, `scripts/build_registry.py`, or the CI workflows that could allow malicious skills to land on `main`.
+- Manifests crafted to bypass the backend's ingest validation (e.g. slug↔path mismatch, unknown-tool, or path-traversal tricks in the community fetch) so a malicious skill could surface in the marketplace.
 
 Out of scope:
 

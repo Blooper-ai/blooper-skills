@@ -22,8 +22,7 @@ marketplace? Link to a screenshot or short clip of it running if you have one. -
 - [ ] Version is semver (`X.Y.Z`); bumped for any user-visible change.
 - [ ] `applies_to` fields filled correctly (file_type / folder_kind / folder_name / parent_folder_name).
 - [ ] `README.md` present in the skill directory with: description, args, example chat invocation, output, cost note.
-- [ ] Local validation passes: `python scripts/validate.py`.
-- [ ] Registry regenerated and committed: `python scripts/build_registry.py`.
+- [ ] `tools:` lists only built-in runtime tools (or tools shipped under this skill's `tools/`). Unknown tools are rejected by the backend on ingest.
 - [ ] No internal infrastructure references in manifest or README (no internal hostnames, queue names, repo paths, vendor secrets).
 - [ ] (If new tool code:) `tools/` directory follows the public SDK contract — see <https://dev.blooper.ai/docs/>.
 - [ ] Budget (`max_provider_calls`, `max_minutes`) is tight and justified.
