@@ -6,8 +6,8 @@ Thanks for adding a skill to the Blooper marketplace. This repo follows a Raycas
 
 1. Fork and clone the repo.
 2. Create `skills/<your-publisher>/<your-skill-slug>/` and drop in a `skill.yaml` + `README.md` (use any skill under `skills/blooper-official/` as a starting point).
-3. Run `python scripts/validate.py` and `python scripts/build_registry.py` locally.
-4. Commit, push, open a PR using the template and fill in the checklist.
+3. Make sure the manifest `slug` matches the folder path.
+4. Commit, push, open a PR using the template and fill in the checklist. This repo is data-only — there's nothing to build or commit beyond your skill's files; the Blooper backend validates your manifest when it ingests it.
 
 ## Step 1 - Pick a slug
 
@@ -16,7 +16,7 @@ Slugs are `<publisher>/<skill-name>`, both kebab-case, both matching `[a-z0-9_-]
 - `publisher` is your handle or org. By convention it matches the directory name under `skills/` and your GitHub username/org. First-time contributors: pick something you can live with - this becomes part of every install id.
 - `skill-name` describes what the skill does in 1-3 words: `trim-video`, `summarize-pdf`, `caption-image`.
 
-The slug MUST match the folder path. A manifest with `slug: alice/caption-image` must live at `skills/alice/caption-image/skill.yaml`. CI enforces this.
+The slug MUST match the folder path. A manifest with `slug: alice/caption-image` must live at `skills/alice/caption-image/skill.yaml`. The backend enforces this on ingest (a manifest whose slug doesn't match its path is rejected).
 
 ## Step 2 - Scaffold from an existing skill
 
@@ -39,14 +39,14 @@ skills/<publisher>/<skill-slug>/
 
 ## Step 3 - Write the manifest
 
-`skill.yaml` follows the SkillManifest schema. Authoritative reference is [`schema/skill-manifest.schema.json`](./schema/skill-manifest.schema.json). `skill.yml` and `skill.json` are accepted as alternates — pick one per skill (shipping two in the same directory is an error). The non-obvious fields:
+`skill.yaml` follows the SkillManifest contract. The authoritative reference is the Blooper backend's `SkillManifest` model (documented at <https://dev.blooper.ai/docs/>); this repo no longer vendors a JSON Schema. `skill.yml` and `skill.json` are accepted as alternates — pick one per skill (shipping two in the same directory is an error). The non-obvious fields:
 
 - `applies_to` - when the skill should be offered to the user. AND across keys, OR within lists. Leave empty to apply everywhere.
 - `params` - typed inputs presented to the user before run.
 - `output.count` - `"dynamic"`, an integer, or `"from_param.<param_name>"`.
 - `tools` - list every tool the skill calls. Tool names not provided by the runtime AND not shipped under `tools/` will fail at install.
 - `budget` - cap provider calls and minutes. Reviewers will push back on bloated budgets; start tight.
-- `license` - optional SPDX identifier. Allowed: `Apache-2.0` (default when omitted), `MIT`, `BSD-2-Clause`, `BSD-3-Clause`, `ISC`. Copyleft (GPL/LGPL/AGPL), SSPL, BSL/Elastic and other source-available or non-commercial licenses are rejected by PR validation. See [`LICENSING.md`](./LICENSING.md) for the full policy.
+- `license` - optional SPDX identifier. Allowed: `Apache-2.0` (default when omitted), `MIT`, `BSD-2-Clause`, `BSD-3-Clause`, `ISC`. Copyleft (GPL/LGPL/AGPL), SSPL, BSL/Elastic and other source-available or non-commercial licenses are rejected by the backend on ingest. See [`LICENSING.md`](./LICENSING.md) for the full policy.
 
 ## Step 4 - Optional: ship a custom tool
 
@@ -69,23 +69,11 @@ Every skill must include `README.md` with at minimum:
 - "Example output" - one screenshot or pasted result.
 - "Cost" - rough provider-call count for a typical run.
 
-## Step 6 - Validate locally
+## Step 6 - Validate
 
-```sh
-pip install pyyaml jsonschema
+This repo is data-only, so there's no local build or `registry.json` to regenerate. The Blooper backend validates your manifest with the canonical `SkillManifest` model when it ingests the repo after merge; a manifest that fails validation (bad schema, unknown tool, slug↔path mismatch, disallowed license) simply isn't surfaced in the marketplace.
 
-# Validate just your skill:
-python scripts/validate.py --manifest skills/<publisher>/<skill-slug>/skill.yaml
-
-# Run full structural checks across every manifest:
-python scripts/validate.py
-
-# Regenerate the registry and commit it:
-python scripts/build_registry.py
-git add registry.json
-```
-
-CI runs the same commands.
+A standalone `blooper-skill-sdk` that validates and test-runs a skill locally before you submit (a thin client over the backend's canonical validator, so it can never drift) is on the roadmap — until then, keep your manifest close to an existing `skills/blooper-official/` example and double-check the slug↔path rule.
 
 ## Step 7 - Open the PR
 
@@ -93,7 +81,7 @@ Use the auto-loaded PULL_REQUEST_TEMPLATE.md and complete every checkbox. A typi
 
 - Title: `Add skill <publisher>/<slug>` or `Update <publisher>/<slug> to vX.Y.Z`.
 - Body: filled-in checklist; link to a screenshot or short video of the skill running.
-- Files: `skills/<publisher>/<slug>/...` plus the regenerated `registry.json`.
+- Files: `skills/<publisher>/<slug>/...` only (no `registry.json` — the backend builds the catalog itself).
 
 ## Reviews
 
@@ -110,7 +98,7 @@ Use the auto-loaded PULL_REQUEST_TEMPLATE.md and complete every checkbox. A typi
 
 ## Removing a skill
 
-Open a PR that deletes `skills/<publisher>/<slug>/` and regenerates `registry.json`. The marketplace marks the slug as removed on the next index pull. Installed copies continue to work locally until the user uninstalls.
+Open a PR that deletes `skills/<publisher>/<slug>/`. The backend stops surfacing the slug on its next index refresh. Installed copies continue to work locally until the user uninstalls.
 
 ## Questions
 

@@ -1,17 +1,16 @@
 # blooper-skills
 
-[![validate](https://github.com/blooper-ai/blooper-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/blooper-ai/blooper-skills/actions/workflows/validate.yml)
-[![build-registry](https://github.com/blooper-ai/blooper-skills/actions/workflows/build-registry.yml/badge.svg)](https://github.com/blooper-ai/blooper-skills/actions/workflows/build-registry.yml)
-
 Community skill registry for the [Blooper](https://blooper.ai) creative workspace. Each subdirectory under `skills/<publisher>/<slug>/` describes one installable skill the Blooper app can offer users in chat.
+
+This repository is **data only** — skill manifests and docs, nothing else. The Blooper backend is the single source of truth: it discovers the manifests here, validates them, and builds its own catalog. There is no `registry.json`, schema, or validation script to maintain in this repo.
 
 A skill is a single declarative `skill.yaml` (plus an optional README, icon, and small tool stubs) that wires together built-in runtime tools to do something useful — trim a video, generate ten variants of a character, summarize a PDF, etc. Skills are pure configuration: no servers to deploy, no SDK to install.
 
 ## How it works
 
 1. You write a `skill.yaml` in this repo describing inputs, the prompt template, the tools the skill calls, and the expected output.
-2. You open a pull request. CI validates the manifest against the JSON Schema, runs structural checks, and verifies `registry.json` was regenerated.
-3. After review and merge, the skill appears in the Blooper marketplace within 24h. The Blooper app pulls `registry.json` from this repo and shows your skill to users whose chat context matches your skill's `applies_to` filter.
+2. You open a pull request; a maintainer reviews it.
+3. After merge, the Blooper backend discovers your manifest (it enumerates `skills/<publisher>/<slug>/skill.yaml` directly), validates it against the canonical manifest model, and surfaces it in the marketplace to users whose chat context matches your skill's `applies_to` filter. A manifest that fails validation simply isn't shown.
 4. Users install the skill into their project with one click. Updates land the next time they pull the marketplace.
 
 ## Adding a skill
@@ -19,14 +18,8 @@ A skill is a single declarative `skill.yaml` (plus an optional README, icon, and
 1. Fork this repo.
 2. Create `skills/<your-publisher>/<your-skill-slug>/` and add a `skill.yaml` (use any existing skill under `skills/blooper-official/` as a starting point).
 3. Write the README, drop in an optional 64x64 SVG icon.
-4. Validate locally:
-   ```sh
-   pip install pyyaml jsonschema
-   python scripts/validate.py
-   python scripts/build_registry.py
-   ```
-5. Commit the regenerated `registry.json` alongside your skill.
-6. Open a pull request using the PR template.
+4. Make sure the manifest `slug` matches the folder path (`skills/<publisher>/<slug>/` → `slug: <publisher>/<slug>`).
+5. Open a pull request using the PR template. There is nothing to build or commit beyond your skill's files — the backend validates the manifest on ingest. (A standalone `blooper-skill-sdk` for validating/testing a skill locally before you submit is on the roadmap.)
 
 Full step-by-step in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
@@ -34,11 +27,12 @@ Full step-by-step in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ```
 blooper-skills/
-├── schema/                       JSON Schema for one skill.yaml
-├── scripts/                      validate, build_registry
-├── skills/<publisher>/<slug>/    one directory per skill
-└── registry.json                 auto-generated index of every skill
+├── skills/<publisher>/<slug>/    one directory per skill (skill.yaml + README + optional icon)
+├── CONTRIBUTING.md  LICENSING.md  SECURITY.md
+└── README.md
 ```
+
+Data only — the manifest schema, validation rules, and the marketplace index all live in the Blooper backend (the single source of truth), not here.
 
 ## Reference skills
 
