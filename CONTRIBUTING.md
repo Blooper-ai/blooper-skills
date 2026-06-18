@@ -73,7 +73,7 @@ Every skill must include `README.md` with at minimum:
 
 This repo is data-only, so there's no local build or `registry.json` to regenerate. The Blooper backend validates your manifest with the canonical `SkillManifest` model when it ingests the repo after merge; a manifest that fails validation (bad schema, unknown tool, slug↔path mismatch, disallowed license) simply isn't surfaced in the marketplace.
 
-A standalone `blooper-skill-sdk` that validates and test-runs a skill locally before you submit (a thin client over the backend's canonical validator, so it can never drift) is on the roadmap — until then, keep your manifest close to an existing `skills/blooper-official/` example and double-check the slug↔path rule.
+There is no offline test harness. To try your skill before submitting, install it privately into a scratch project: zip the skill directory and upload it via **Skills → Upload .zip** in the Blooper app, then run it and watch the run card, and iterate. Installs from that flow are private to your `(user, project)` and don't appear in the marketplace. See [Testing locally](https://dev.blooper.ai/docs/) for the full walk-through. Until you've tried it, keep your manifest close to an existing `skills/blooper-official/` example and double-check the slug↔path rule.
 
 ## Step 7 - Open the PR
 
@@ -106,4 +106,4 @@ Open a PR that deletes `skills/<publisher>/<slug>/`. The backend stops surfacing
 - Bug reports for an existing skill: use `.github/ISSUE_TEMPLATE/bug.md`.
 - Wishlist: `.github/ISSUE_TEMPLATE/skill-request.md`.
 
-For app-side documentation, SDK reference, and tutorials see <https://dev.blooper.ai/docs/>.
+For the full skill-authoring reference (manifest fields, tools, patterns) and tutorials see <https://dev.blooper.ai/docs/>.
