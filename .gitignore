@@ -34,3 +34,7 @@ dist/
 # the marketplace consumer can pull a single static file from the main branch
 # without re-running the builder. CI verifies it is up to date on every PR
 # and regenerates+commits it on every push to main.
+
+# Tool costs come ONLY from the backend API (single source of truth) — never
+# vendor them here. validate.py fetches them live via BLOOPER_API_URL.
+/tool_costs.json

@@ -17,8 +17,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
+import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
@@ -43,7 +45,14 @@ except ImportError:  # pragma: no cover
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = REPO_ROOT / "schema" / "skill-manifest.schema.json"
 SKILLS_ROOT = REPO_ROOT / "skills"
-TOOL_COSTS_PATH = REPO_ROOT / "tool_costs.json"
+
+# Tool costs are owned by the BACKEND — the single source of truth — and are
+# NEVER vendored into this public repo. The budget lint fetches them live from
+# the backend tools API when a backend is configured via env, otherwise it is
+# skipped (public CI has no backend access):
+#   BLOOPER_API_URL   — backend base URL, e.g. https://dev.blooper.ai
+#   BLOOPER_API_TOKEN — bearer token for the auth-gated tools endpoint (optional)
+TOOL_COSTS_API_PATH = "/api/v1/skills/tools"
 # Reflection-turn headroom we add when computing the minimum sensible
 # max_provider_calls budget for a manifest. The BE counter ticks per LLM
 # tool-use turn, not per real provider call — so a skill that calls one
@@ -84,25 +93,36 @@ REJECTED_LICENSE_PATTERNS = (
 
 
 def _load_tool_costs() -> dict[str, int]:
-    """Read the snapshot of backend tool costs.
+    """Fetch per-tool costs from the BACKEND — the only source of truth.
 
-    The snapshot is regenerated from the live BE registry whenever the
-    cost numbers change (see README — there's a ``make snapshot-tool-costs``
-    convention). If the file is missing we return an empty dict and
-    silently skip the budget lint; CI will surface the missing snapshot
-    via a separate guard if we want to make it required later.
+    Tool costs are NOT vendored in this public repo. When ``BLOOPER_API_URL``
+    is set we GET ``/api/v1/skills/tools`` (optionally authenticated with a
+    bearer ``BLOOPER_API_TOKEN``) and map each tool's ``slug -> cost``. If no
+    backend is configured or the fetch fails, we return an empty dict and
+    silently skip the budget lint — public CI has no backend access, so the
+    lint only runs where an authorised backend is reachable.
     """
-    if not TOOL_COSTS_PATH.exists():
+    base = os.environ.get("BLOOPER_API_URL", "").strip().rstrip("/")
+    if not base:
         return {}
+    req = urllib.request.Request(
+        base + TOOL_COSTS_API_PATH, headers={"Accept": "application/json"}
+    )
+    token = os.environ.get("BLOOPER_API_TOKEN", "").strip()
+    if token:
+        req.add_header("Authorization", f"Bearer {token}")
     try:
-        with TOOL_COSTS_PATH.open("r", encoding="utf-8") as fh:
-            data = json.load(fh)
-    except (OSError, json.JSONDecodeError):
+        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 (https URL from env)
+            data = json.load(resp)
+    except Exception:
         return {}
-    if not isinstance(data, dict):
+    if not isinstance(data, list):
         return {}
     out: dict[str, int] = {}
-    for slug, cost in data.items():
+    for entry in data:
+        if not isinstance(entry, dict):
+            continue
+        slug, cost = entry.get("slug"), entry.get("cost")
         if isinstance(slug, str) and isinstance(cost, int):
             out[slug] = cost
     return out
@@ -214,9 +234,9 @@ def _budget_check(
 
     if unknown:
         warnings.append(
-            f"tools {sorted(unknown)} are not in tool_costs.json "
-            f"(treated as cost 0 for the budget lint). Regenerate the "
-            f"snapshot or check the tool name."
+            f"tools {sorted(unknown)} are not in the backend tool catalog "
+            f"(treated as cost 0 for the budget lint). Check the tool name "
+            f"or backend availability (BLOOPER_API_URL)."
         )
 
     return errors, warnings
