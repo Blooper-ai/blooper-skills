@@ -1,0 +1,26 @@
+slug: jagajaga/files-to-pdf
+version: 0.1.0
+name: files-to-pdf
+description: ''
+publisher: jagajaga
+preinstall: false
+kind: skill
+license: Apache-2.0
+applies_to: {}
+runtime: agent
+prompt: (submitted via Skill IDE)
+tools: []
+folder_pin_policy: hard
+params: []
+output:
+  produces: metadata_only
+  count: dynamic
+  parent_kind: folder
+  parent_from: context.current_folder
+permissions:
+  install: any_project_member
+  run: any_project_member
+budget:
+  max_provider_calls: 20
+  max_minutes: 15
+  max_sub_runs: 0
