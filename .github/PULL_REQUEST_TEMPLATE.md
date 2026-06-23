@@ -24,7 +24,7 @@ marketplace? Link to a screenshot or short clip of it running if you have one. -
 - [ ] `README.md` present in the skill directory with: description, args, example chat invocation, output, cost note.
 - [ ] `tools:` lists only built-in runtime tools (or tools shipped under this skill's `tools/`). Unknown tools are rejected by the backend on ingest.
 - [ ] No internal infrastructure references in manifest or README (no internal hostnames, queue names, repo paths, vendor secrets).
-- [ ] (If new tool code:) `tools/` directory follows the public SDK contract — see <https://dev.blooper.ai/docs/>.
+- [ ] (If new tool code:) `tools/` directory follows the public SDK contract — see <https://blooper.ai/docs/>.
 - [ ] Budget (`max_provider_calls`, `max_minutes`) is tight and justified.
 - [ ] `license` is one of: Apache-2.0 (default), MIT, BSD-2-Clause, BSD-3-Clause, ISC — OR the field is omitted (defaults to Apache-2.0). See [`LICENSING.md`](../LICENSING.md).
 

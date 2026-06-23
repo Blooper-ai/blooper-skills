@@ -2,7 +2,7 @@
 
 Trim a video file version to a `[start_sec, end_sec)` window, then crop the trimmed result to a target aspect ratio — in a single skill invocation, no LLM involved.
 
-This is the canonical worked example for the [**deterministic pipeline**](https://dev.blooper.ai/docs/patterns/deterministic) authoring mode. It composes two existing tools (`trim_video_version` and `crop_video_version`) with the second step reading the first step's `new_version_id` via the `{{ steps.<id>.<field> }}` template syntax.
+This is the canonical worked example for the [**deterministic pipeline**](https://blooper.ai/docs/patterns/deterministic) authoring mode. It composes two existing tools (`trim_video_version` and `crop_video_version`) with the second step reading the first step's `new_version_id` via the `{{ steps.<id>.<field> }}` template syntax.
 
 ## How it works
 
@@ -65,4 +65,4 @@ The community-repo validator (`scripts/validate.py`) sums tool costs across ever
 
 - [`crop-video`](../crop-video/README.md) — the single-step deterministic skill the second pipeline step delegates to.
 - [`trim-video`](../trim-video/README.md) — the single-step deterministic skill the first pipeline step delegates to.
-- [Deterministic skills](https://dev.blooper.ai/docs/patterns/deterministic) — the reference doc for `runtime: deterministic`, including the full template-syntax grammar and the failure model.
+- [Deterministic skills](https://blooper.ai/docs/patterns/deterministic) — the reference doc for `runtime: deterministic`, including the full template-syntax grammar and the failure model.

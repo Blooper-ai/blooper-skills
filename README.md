@@ -19,7 +19,7 @@ A skill is a single declarative `skill.yaml` (plus an optional README, icon, and
 2. Create `skills/<your-publisher>/<your-skill-slug>/` and add a `skill.yaml` (use any existing skill under `skills/blooper-official/` as a starting point).
 3. Write the README, drop in an optional 64x64 SVG icon.
 4. Make sure the manifest `slug` matches the folder path (`skills/<publisher>/<slug>/` → `slug: <publisher>/<slug>`).
-5. Open a pull request using the PR template. There is nothing to build or commit beyond your skill's files — the backend validates the manifest on ingest. To try it first, zip the skill and upload it privately into a scratch project via **Skills → Upload .zip** in the app (see the [docs](https://dev.blooper.ai/docs/)).
+5. Open a pull request using the PR template. There is nothing to build or commit beyond your skill's files — the backend validates the manifest on ingest. To try it first, zip the skill and upload it privately into a scratch project via **Skills → Upload .zip** in the app (see the [docs](https://blooper.ai/docs/)).
 
 Full step-by-step in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
@@ -53,7 +53,7 @@ The reference skills live under `skills/blooper-official/`. Each one is a real, 
 
 ## Docs
 
-App-side docs, SDK reference, and authoring tutorials live at <https://dev.blooper.ai/docs/>.
+App-side docs, SDK reference, and authoring tutorials live at <https://blooper.ai/docs/>.
 
 ## FAQ
 
