@@ -43,7 +43,11 @@ seeds, references, and conditioning stay aligned across providers.
 
 - `max_provider_calls`: 12 — comfortably covers 3–5 providers today plus
   retry slack.
-- `max_minutes`: 10.
+- `max_minutes`: 30 — generous on purpose: the picker step pauses the run and
+  HITL wall-clock counts toward the deadline (anchored at run start), so a
+  user who goes off browsing the version tree before picking (the onboarding
+  guide even tells them to) must not come back to a timed-out FAILED run.
+  Spend stays capped by `max_provider_calls`.
 
 ## Limits and known issues
 

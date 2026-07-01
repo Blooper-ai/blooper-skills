@@ -1,10 +1,12 @@
 slug: blooper-official/generate-in-all-providers
-version: 1.0.0
+version: 1.1.1
 name: Generate in all providers
 description: >
-  Run the same prompt through every available image provider, then ask the
-  user to pick the winner and promote it to the file's current version.
-  Useful when you don't know which model will render a given idea best.
+  Re-render THIS image in every available provider using the exact prompt that
+  produced it, then ask the user to pick the winner and promote it to the
+  file's current version. Useful when you have a result you like and want to
+  see how other models render the same thing. An optional prompt override lets
+  you compare a different prompt instead.
 publisher: blooper
 kind: skill
 license: Apache-2.0
@@ -21,10 +23,10 @@ tools:
 
 params:
   - name: prompt
-    label: Prompt
+    label: Prompt override (optional)
     type: text
-    optional: false
-    placeholder: "e.g. 'a misty pine forest at golden hour'"
+    optional: true
+    placeholder: "Leave empty to reuse this image's original prompt"
 
 output:
   produces: file_versions
@@ -38,15 +40,20 @@ permissions:
 
 budget:
   max_provider_calls: 12
-  max_minutes: 10
+  # 30, not 10: the run PAUSES on the "pick the winning generation" choice and
+  # HITL wall-clock counts toward the deadline (anchored at run start). The
+  # onboarding guide sends users off to tour the version tree before they pick
+  # — at 10 minutes the unanswered picker expired and the run died FAILED
+  # mid-tutorial. Provider spend is still capped by max_provider_calls.
+  max_minutes: 30
   max_sub_runs: 0
 
 prompt: |
-  You are running the user's prompt through every image provider so they can compare side-by-side and pick a winner.
+  You are re-rendering THIS image in every image provider — using the EXACT prompt that produced the current version — so the user can compare side-by-side and pick a winner.
 
   Step 1: call get_run_context to learn project_id, file_id, and current_version_id. The new versions you generate will attach to this file. If file_id is null, tell the user this skill must be run from an image file and stop.
 
-  Step 2: call compare_providers with prompt={{prompt}} and parent_version_id=current_version_id. The tool fans out one generate_image call per registered image provider against the same prompt, all hanging off the current version, and returns a list of {provider, version_id, label} entries. If it fails or returns zero results, surface the error and stop.
+  Step 2: call compare_providers with parent_version_id=current_version_id. Do NOT pass a prompt unless the user supplied a "Prompt override" — the tool automatically reuses the exact prompt that generated the current version, which is what "the same image in another model" means. Only if the override param {{prompt}} is non-empty, pass prompt={{prompt}} to compare a different prompt instead. The tool fans out one generate_image call per registered image provider, all hanging off the current version, and returns a list of {provider, version_id, label} entries. If it fails or returns zero results, surface the error and stop.
 
   Step 3: call request_user_choice with one option per returned entry. Option label = the provider's display name (e.g. "FLUX.2 Max", "Nano Banana"), option value = the corresponding version_id (as string). Title: "Pick the winning generation". Description: "All providers ran the same prompt. Choose the version you want as the new current.".
 
