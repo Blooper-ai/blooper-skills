@@ -1,12 +1,14 @@
 slug: blooper-official/storyboard-from-script
-version: 2.1.0
+version: 2.2.0
 name: Storyboard from script
 description: >
   Run the full v2 pipeline (5 LLM stages) on a TEXT script: scene partition →
   director shot list with camera movement + duration + per-shot character
   presence → character detection → dedup with appearance/clothing/role →
   photorealistic image prompts. Persists a storyboard with scenes/shots fully
-  populated and creates character placeholders in the Characters folder.
+  populated. Structure only by design: it creates NO character or location
+  image files — your existing Characters/Locations assets stay the single
+  source of truth and get attached as references when the shots are rendered.
 publisher: blooper
 kind: skill
 license: Apache-2.0
@@ -53,4 +55,4 @@ budget:
   max_sub_runs: 0
 
 prompt: |
-  You are running the v2 script→storyboard pipeline. Call generate_storyboard_from_script EXACTLY ONCE with text_file_version_id set to {{text_file_version_id}} and storyboard_name set to {{storyboard_name}}. That single tool call runs all five LLM stages internally (scene partition, per-scene director shot list with cam_mvmnt + duration + character presence, character detection, character dedup, photorealistic image-prompt generation) and persists the storyboard folder, scene folders, shot files (with cam_mvmnt + duration_sec + per-shot character lists + image prompt), and character placeholders in the Characters folder. After the tool returns, report the storyboard_folder_id + the scenes/shots/characters counts back to the user. Tell the user the next steps in plain English: open the Characters folder, generate an image for each placeholder (the appearance reference is in References → Character — <name>.md if it exists), then run blooper/storyboard-generate-all to fill the empty shot placeholders with images.
+  You are running the v2 script→storyboard pipeline. Call generate_storyboard_from_script EXACTLY ONCE with text_file_version_id set to {{text_file_version_id}}, storyboard_name set to {{storyboard_name}}, and structure_only=true. That single tool call runs all five LLM stages internally (scene partition, per-scene director shot list with cam_mvmnt + duration + character presence, character detection, character dedup, photorealistic image-prompt generation) and persists the storyboard folder, scene folders, and shot files (with cam_mvmnt + duration_sec + per-shot character lists + image prompt). structure_only means it deliberately creates NO character or location image files — the user's existing Characters/Locations assets stay the single source of truth, so do NOT tell the user to expect new placeholders anywhere. After the tool returns, report the storyboard_folder_id + the scenes/shots counts back to the user. Tell the user the next steps in plain English: open the storyboard in the Storyboards section to review the plan, make sure each character in the cast has an image in the Characters folder (generate any that are missing), then render the shots from the chat — generate each shot into its card with the character (and location) images attached as references, so every shot shows their exact cast.

@@ -1,5 +1,5 @@
 slug: blooper-official/generate-in-all-providers
-version: 1.1.1
+version: 1.1.2
 name: Generate in all providers
 description: >
   Re-render THIS image in every available provider using the exact prompt that
@@ -55,7 +55,7 @@ prompt: |
 
   Step 2: call compare_providers with parent_version_id=current_version_id. Do NOT pass a prompt unless the user supplied a "Prompt override" — the tool automatically reuses the exact prompt that generated the current version, which is what "the same image in another model" means. Only if the override param {{prompt}} is non-empty, pass prompt={{prompt}} to compare a different prompt instead. The tool fans out one generate_image call per registered image provider, all hanging off the current version, and returns a list of {provider, version_id, label} entries. If it fails or returns zero results, surface the error and stop.
 
-  Step 3: call request_user_choice with one option per returned entry. Option label = the provider's display name (e.g. "FLUX.2 Max", "Nano Banana"), option value = the corresponding version_id (as string). Title: "Pick the winning generation". Description: "All providers ran the same prompt. Choose the version you want as the new current.".
+  Step 3: call request_user_choice with prompt="Pick the winning generation — all providers ran the same prompt; choose the version you want as the new current." and one entry in options per returned variant: options[i].label = the provider's display name (e.g. "FLUX.2 Max", "Nano Banana") and options[i].version_id = the corresponding version_id.
 
   Step 4: when the user picks, call set_current_version with file_id=context.current_file and version_id=<the chosen version_id>. Report the provider name + final version_id back in a one-line summary. If the user denies / cancels the choice, leave all generated versions in place (they're already in the version tree) and tell the user nothing was promoted.
 

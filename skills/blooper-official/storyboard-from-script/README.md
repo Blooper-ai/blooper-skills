@@ -14,18 +14,23 @@ internally:
 5. **Photorealistic image prompts** — one prompt per shot, suitable for
    downstream `generate_image` calls.
 
-The single tool call then persists everything: a Storyboard folder with one
-sub-folder per scene, one shot file per shot (with `cam_mvmnt`,
-`duration_sec`, per-shot character list, and the image prompt), plus a
-character placeholder file per detected character in the project's
-`Characters/` folder.
+The single tool call then persists the storyboard structure: a Storyboard
+folder with one sub-folder per scene and one shot file per shot (with
+`cam_mvmnt`, `duration_sec`, per-shot character list, and the image prompt).
+
+**Structure only, by design** (`structure_only=true`, the tool's default):
+the pipeline creates **no** character or location image files. Your existing
+`Characters/` and `Locations/` assets stay the single source of truth — the
+per-shot character lists reference them by name, and they get attached as
+image references when the shots are rendered. This is what keeps every shot
+showing *your* exact cast instead of minting a duplicate cast of lookalikes.
 
 ## When to use it
 
 - You have a written script and you want a structured storyboard scaffold
   without hand-listing every shot.
-- You want character placeholders auto-created so you can hand-pick the
-  character look later before filling the shots with images.
+- You already have (or plan to generate) your cast in `Characters/` and want
+  the shot plan wired to those exact assets.
 
 ## Parameters
 
@@ -44,21 +49,22 @@ character placeholder file per detected character in the project's
 - One new Storyboard folder with one sub-folder per scene.
 - One empty shot file per shot, populated with metadata (`cam_mvmnt`,
   `duration_sec`, per-shot character list, image prompt).
-- One Character placeholder file per detected character in the
-  `Characters/` folder, ready to be filled with a generated portrait.
-- The skill reports the new `storyboard_folder_id` and scene / shot /
-  character counts when it finishes.
+- No new files in `Characters/` or `Locations/` — deliberate; see above.
+- The skill reports the new `storyboard_folder_id` and scene / shot counts
+  when it finishes.
 
 ## Recommended follow-up
 
-1. Open the `Characters/` folder and generate an image for each placeholder.
-2. Run `blooper-official/storyboard-generate-all` against the new storyboard
-   to fill the empty shot placeholders with images, using your now-filled
-   character refs.
+1. Make sure every character in the cast has an image in `Characters/`
+   (generate any that are missing).
+2. Render the shots from the chat: generate each shot into its card with
+   your character (and location) images attached as references, so every
+   shot shows your exact cast.
 
 ## Budget
 
-- `max_provider_calls`: 6 — five LLM stages plus slack.
+- `max_provider_calls`: 8 — the pipeline tool (cost 5) plus reflection/retry
+  headroom.
 - `max_minutes`: 45 — long scripts can take a while.
 
 ## Limits and known issues
