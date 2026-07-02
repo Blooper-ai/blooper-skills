@@ -1,20 +1,22 @@
 # Generate all timeline clips
 
 Fan out one `generate_video` job per empty or image-only clip in a timeline,
-carrying the clip's stored prompt plus optional start/end image references.
-Clips whose backing video is already READY are skipped unless
-`force=true`.
+carrying each clip's stored start/end frames as `ref_version_ids`. Clips
+whose backing video is already READY are skipped unless `force=true`.
 
-The skill also includes every character reference image from the project's
-`Characters/` folder as a `ref_version_ids` entry on every clip — that's
-what keeps each generated clip on-model with the chosen characters across
-the whole sequence.
+**Reference semantics** (why this skill is careful with refs): for video
+generation the reference images are FRAMES, not identity hints — slot 0 is
+the start frame, and if more than one id is passed the LAST one becomes the
+end frame and the provider MORPHS between them. So each clip gets its own
+start image (plus its end image only when the editor authored one), and a
+clip with no start image gets AT MOST one character reference. Passing every
+character into every clip — what v1.1.0 did — both collapsed casts to one
+dominant face and accidentally created start→character morphs.
 
 ## When to use it
 
-- You created a timeline (typically with
-  `blooper-official/timeline-from-storyboard`) and you want to render every
-  clip to video without clicking each one individually.
+- You have a timeline and want to render every clip to video without
+  clicking each one individually.
 
 ## Parameters
 
@@ -44,10 +46,10 @@ the whole sequence.
 
 ## Limits and known issues
 
-- Clips with state `empty` get a text-only generation. To get image-anchored
-  clips, set the start (or start+end) image first — the skill picks them up
-  automatically.
-- The Characters folder lookup is by literal name; the folder must be named
-  `Characters` and live at the project root.
-- If the Characters folder is empty or absent, clips render without
-  character refs. Narration in chat warns about this.
+- Clips with state `empty` get at most ONE reference (the most relevant
+  character for that clip's prompt). For frame-accurate clips, set the start
+  (or start+end) image first — the skill picks them up automatically.
+- The Characters folder lookup (for empty clips) is by literal name; the
+  folder must be named `Characters` and live at the project root.
+- Motion-only prompts: the skill never re-describes the character/scene in
+  its video prompts — the reference frames carry the look.

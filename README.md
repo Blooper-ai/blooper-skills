@@ -47,9 +47,8 @@ The reference skills live under `skills/blooper-official/`. Each one is a real, 
 | `blooper-official/generate-room-from-refs`     | Folder-scoped skill with `file_versions` ref input.                       |
 | `blooper-official/generate-in-all-providers`   | Provider fan-out and human-in-the-loop pick.                              |
 | `blooper-official/storyboard-from-script`      | Heavy LLM-pipeline skill wrapped behind a single runtime tool.            |
-| `blooper-official/storyboard-generate-all`     | Batch fan-out across a folder of placeholders with per-shot ref filtering. |
-| `blooper-official/timeline-from-storyboard`    | Structural / metadata-only seeding skill.                                 |
-| `blooper-official/timeline-generate-all`       | Batch fan-out of video generations with project-wide character refs.      |
+| `blooper-official/timeline-generate-all`       | Batch fan-out of video generations with frame-accurate clip refs.         |
+| `blooper-official/export-file-history-pdf`     | One-tool provenance/history PDF export for the anchored file.             |
 
 ## Docs
 

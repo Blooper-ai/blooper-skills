@@ -1,5 +1,5 @@
 slug: blooper-official/timeline-generate-all
-version: 1.1.0
+version: 1.2.0
 name: Generate all timeline clips
 description: >
   Fan out one generate_video job per empty or image-only clip in a timeline.
@@ -46,6 +46,9 @@ budget:
   max_sub_runs: 60
 
 prompt: |
-  You are a timeline batch generator. Call list_timeline_clips with timeline_folder_id=params.timeline_folder_id to enumerate clips. For every clip whose state is 'empty' or 'has_image', call generate_video with the clip's prompt and target_file_id=clip.file_id; include start_image_version_id and end_image_version_id as input refs when set. Skip clips whose state is 'has_video' unless params.force=true. Report a one-line summary per clip.
+  You are a timeline batch generator. Call list_timeline_clips with timeline_folder_id=params.timeline_folder_id to enumerate clips. For every clip whose state is 'empty' or 'has_image', call generate_video with target_file_id=clip.file_id. Skip clips whose state is 'has_video' unless params.force=true. Report a one-line summary per clip.
 
-  **Character consistency (REQUIRED)**: Before generating any clip, call list_folders and find the project's Characters folder (the folder named 'Characters' at the project root). Then call list_folder_files with that folder_id. For each character File that has a current_version_id, include that version ID in the ref_version_ids list passed to generate_video. This keeps every clip on-model with the chosen characters. If the Characters folder is empty or absent, proceed without refs.
+  **Reference rules (REQUIRED — video refs are FRAMES, not identity hints)**: generate_video has no start_image/end_image arguments — frames ride in ref_version_ids, where slot 0 is the START frame and, if a second id is present, the LAST id becomes the END frame (the provider MORPHS from first to last). So:
+  - state 'has_image': ref_version_ids=[clip.start_image_version_id]; ALSO append clip.end_image_version_id only when it is set (a deliberate first→last morph the editor authored).
+  - state 'empty': pass at most ONE reference — the single most relevant character's current version (call list_folders → the 'Characters' folder at the project root → list_folder_files, and pick the character this clip's prompt names). NEVER pass multiple character refs to generate_video: the extra ids are treated as an END frame and the clip morphs between characters instead of staying on-model.
+  - The still frame(s) carry the entire look. Your prompt for generate_video must be MOTION ONLY (camera move + what happens) — re-describing the character or scene makes the model repaint over the reference.

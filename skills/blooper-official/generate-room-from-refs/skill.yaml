@@ -1,11 +1,10 @@
 slug: blooper-official/generate-room-from-refs
-version: 1.1.0
+version: 1.2.0
 name: Generate Room from References
 description: Generate consistent room images from reference photos in this folder.
 publisher: blooper
 kind: skill
 license: Apache-2.0
-preinstall: true
 
 applies_to:
   file_type: ["IMAGE"]
@@ -17,7 +16,6 @@ tools:
   - generate_image
   - list_folder_files
   - read_file_version
-  - save_as_new_file
 
 params:
   - name: room_count
@@ -59,10 +57,11 @@ prompt: |
   Step 1: call get_run_context to learn project_id and current_folder (the
     Locations folder we are writing into).
 
-  Step 2: call list_folder_files on the current folder. Collect every file
-    whose type=IMAGE and current_version_id is not null. Those current
-    version ids become ref_version_ids — the visual reference set that
-    every room must match.
+  Step 2: build the reference set. If the user picked references in the
+    Configure form, use exactly those version ids: {{references}}. Otherwise
+    call list_folder_files on the current folder and collect every file
+    whose type=IMAGE and current_version_id is not null. Those version ids
+    become ref_version_ids — the visual reference set every room must match.
       HARD RULE: at least one reference image must be present. If the
       folder has no IMAGE files with a current_version_id, surface a
       one-line error to the user ("Locations folder has no reference
@@ -71,9 +70,9 @@ prompt: |
   Step 3: for each of the {{room_count}} rooms, call generate_image with:
       provider=FLUX2_MAX
       ref_version_ids=<the list collected in Step 2>
-      target_folder_id=<context.current_folder>   # write into this folder
+      folder_id=<the folder_id from Step 1>       # write into this folder
       label="Room <n>"                            # e.g. "Room 1", "Room 2"
-      params.prompt=<the per-room prompt below>
+      prompt=<the per-room prompt below>
 
     Per-room prompt: describe ONE distinct interior space (kitchen, living
     room, bedroom, hallway, study — pick whatever makes sense given the
@@ -86,9 +85,8 @@ prompt: |
     short description) so the user can scan the result.
 
   Hard rules:
-    - Do NOT call save_as_new_file directly — generate_image with
-      target_folder_id already creates a new file and a READY version in
-      that folder.
+    - generate_image with folder_id already creates a new file and a READY
+      version in that folder — never try to save results any other way.
     - Do NOT mutate any existing reference file. The references are
       read-only inputs.
     - Do NOT skip the reference list. The whole point is that the new
