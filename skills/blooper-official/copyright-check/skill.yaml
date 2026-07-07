@@ -57,8 +57,10 @@ prompt: |
   Step 1: call get_run_context.
     - If the run is anchored on a FILE (file_id set): scan just that file —
       call detect_ip with version_id=current_version_id and
-      annotate={{annotate}}. Then report as in Step 3 (chat only, no report
-      file) and STOP.
+      annotate={{annotate}} — but ONLY if the anchored file's type is
+      IMAGE; if it is not an image (VIDEO/TEXT/PDF/etc.), say the file is
+      not an image and stop — that is a successful run, not an error.
+      Then report as in Step 3 (chat only, no report file) and STOP.
     - If the run is anchored on a FOLDER: call list_folder_files, keep only
       files with type IMAGE. If there are none, say so and stop — that is a
       successful run, not an error.
