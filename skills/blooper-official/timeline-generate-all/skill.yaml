@@ -1,5 +1,5 @@
 slug: blooper-official/timeline-generate-all
-version: 1.2.0
+version: 1.2.1
 name: Generate all timeline clips
 description: >
   Fan out one generate_video job per empty or image-only clip in a timeline.
@@ -50,5 +50,5 @@ prompt: |
 
   **Reference rules (REQUIRED — video refs are FRAMES, not identity hints)**: generate_video has no start_image/end_image arguments — frames ride in ref_version_ids, where slot 0 is the START frame and, if a second id is present, the LAST id becomes the END frame (the provider MORPHS from first to last). So:
   - state 'has_image': ref_version_ids=[clip.start_image_version_id]; ALSO append clip.end_image_version_id only when it is set (a deliberate first→last morph the editor authored).
-  - state 'empty': pass at most ONE reference — the single most relevant character's current version (call list_folders → the 'Characters' folder at the project root → list_folder_files, and pick the character this clip's prompt names). NEVER pass multiple character refs to generate_video: the extra ids are treated as an END frame and the clip morphs between characters instead of staying on-model.
+  - state 'empty': pass at most ONE reference — the single most relevant character's current version (call list_folders → the seeded Characters tag (slug 'characters') → list_folder_files, and pick the character this clip's prompt names). NEVER pass multiple character refs to generate_video: the extra ids are treated as an END frame and the clip morphs between characters instead of staying on-model.
   - The still frame(s) carry the entire look. Your prompt for generate_video must be MOTION ONLY (camera move + what happens) — re-describing the character or scene makes the model repaint over the reference.

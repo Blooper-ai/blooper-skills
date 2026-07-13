@@ -49,7 +49,7 @@ dominant face and accidentally created start→character morphs.
 - Clips with state `empty` get at most ONE reference (the most relevant
   character for that clip's prompt). For frame-accurate clips, set the start
   (or start+end) image first — the skill picks them up automatically.
-- The Characters folder lookup (for empty clips) is by literal name; the
-  folder must be named `Characters` and live at the project root.
+- The Characters lookup (for empty clips) resolves the seeded Characters tag
+  via list_folders (slug `characters`) — rename-proof since the tags update.
 - Motion-only prompts: the skill never re-describes the character/scene in
   its video prompts — the reference frames carry the look.

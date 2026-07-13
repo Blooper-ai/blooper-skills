@@ -12,7 +12,7 @@ the version tree.
 
 ## When to use it
 
-- You finalised a character image in `Characters/` and now want a quick mood
+- You finalised a character image in the `Characters` tag and now want a quick mood
   pass to see how the design holds up in alternate expressions.
 - You want every emotion to live as a sibling version of the original so you
   can A/B-swap them without polluting the folder with new files.
@@ -28,7 +28,7 @@ the version tree.
 
 ## Example chat invocation
 
-> Open a character file inside the `Characters/` folder, then type:
+> Open a character file inside the `Characters` tag, then type:
 >
 > *"Run character-emotions on this — give me happy, sad, surprised, proud."*
 

@@ -1,5 +1,5 @@
 slug: blooper-official/generate-room-from-refs
-version: 1.2.0
+version: 1.3.0
 name: Generate Room from References
 description: Generate consistent room images from reference photos in this folder.
 publisher: blooper
@@ -8,7 +8,9 @@ license: Apache-2.0
 
 applies_to:
   file_type: ["IMAGE"]
-  folder_name: ["Locations"]
+  # tags-replace-folders: target the seeded Locations tag by its stable
+  # behavior key (rename-proof), not by display name.
+  tag_slug: ["locations"]
   min_context_files: 1
 
 tools:
@@ -52,10 +54,10 @@ budget:
 
 prompt: |
   You are generating {{room_count}} room images that stay visually consistent
-  with the user's reference photos already in this Locations folder.
+  with the user's reference photos already in this Locations tag.
 
   Step 1: call get_run_context to learn project_id and current_folder (the
-    Locations folder we are writing into).
+    Locations tag we are writing into).
 
   Step 2: build the reference set. If the user picked references in the
     Configure form, use exactly those version ids: {{references}}. Otherwise
@@ -64,7 +66,7 @@ prompt: |
     become ref_version_ids — the visual reference set every room must match.
       HARD RULE: at least one reference image must be present. If the
       folder has no IMAGE files with a current_version_id, surface a
-      one-line error to the user ("Locations folder has no reference
+      one-line error to the user ("The Locations tag has no reference
       images — add one before running this skill.") and stop.
 
   Step 3: for each of the {{room_count}} rooms, call generate_image with:

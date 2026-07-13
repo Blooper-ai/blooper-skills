@@ -1,5 +1,5 @@
 slug: blooper-official/export-file-history-pdf
-version: 1.4.0
+version: 1.4.1
 name: Export file history (PDF)
 description: >
   Export version history as a PDF. On a file: that file's complete history —
@@ -8,7 +8,7 @@ description: >
   history of every clip/shot inside it, one section per file. Turn on "include
   provenance" to also append the recursive cross-file provenance of the current
   version (how each reference was made, and how THEIR references were made). The
-  PDF lands in the project's Exports folder, and you get an "export ready"
+  PDF lands in the project's Exports tag, and you get an "export ready"
   notification.
 publisher: blooper
 kind: skill

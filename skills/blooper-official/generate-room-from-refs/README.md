@@ -1,13 +1,13 @@
 # Generate Room from References
 
 Generate a series of consistent room images using the reference photos
-already in the current `Locations/` folder as style + content anchors. The
+already in the current `Locations` tag as style + content anchors. The
 references are passed alongside the prompt so each generated room reads as
 "more of the same world" rather than four unrelated environments.
 
 ## When to use it
 
-- You have one or two location references in the `Locations/` folder and you
+- You have one or two location references in the `Locations` tag and you
   want a quick fill of related rooms — same style, same world.
 - You want each generated room saved as a brand-new file in the folder
   (so they can each get their own version tree, character refs, etc.) rather
@@ -23,14 +23,14 @@ references are passed alongside the prompt so each generated room reads as
 
 ## Example chat invocation
 
-> Open the `Locations/` folder, then type:
+> Open the `Locations` tag, then type:
 >
 > *"Generate-room-from-refs: give me 4 more rooms in the same warm-wood
 > painterly style as `kitchen.png`."*
 
 ## Expected output
 
-- `room_count` new files in the current `Locations/` folder, each with one
+- `room_count` new files in the current `Locations` tag, each with one
   initial READY version produced by the generator and the supplied references
   baked into the conditioning.
 

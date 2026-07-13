@@ -1,5 +1,5 @@
 slug: blooper-official/character-emotions
-version: 1.7.1
+version: 1.8.0
 name: Character Emotions
 description: >
   Generate four expressive emotion variants of a character — saved as new
@@ -13,7 +13,9 @@ license: Apache-2.0
 
 applies_to:
   file_type: ["IMAGE"]
-  folder_name: ["Characters"]
+  # tags-replace-folders: target the seeded Characters tag by its stable
+  # behavior key (rename-proof), not by display name.
+  tag_slug: ["characters"]
 
 tools:
   - get_run_context
