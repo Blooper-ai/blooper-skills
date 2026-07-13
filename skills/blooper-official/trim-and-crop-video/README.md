@@ -59,7 +59,7 @@ You could install `crop-video` and `trim-video` separately and run them one afte
 - `crop_video_version`: cost 1
 - `budget.max_provider_calls`: 2
 
-The community-repo validator (`scripts/validate.py`) sums tool costs across every step in a deterministic pipeline and warns when `max_provider_calls` is below that sum.
+Budget-vs-tool-cost validation runs backend-side on ingest (the old in-repo `scripts/validate.py` is retired): it sums step tool costs in a deterministic pipeline and warns when `max_provider_calls` is below that sum.
 
 ## See also
 

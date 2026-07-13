@@ -40,7 +40,7 @@ provider calls.
 
 ## Expected output
 
-- One new `PDF` FileVersion in the project's **Exports** folder named
+- One new `PDF` FileVersion in the project's **Exports** tag named
   `<file> — history.pdf`.
 - An `EXPORT_READY` notification (only for you) that deep-links to the PDF and
   offers a Download button.

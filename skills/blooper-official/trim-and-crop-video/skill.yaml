@@ -1,5 +1,5 @@
 slug: blooper-official/trim-and-crop-video
-version: 1.0.0
+version: 1.0.1
 name: Trim and crop video
 description: >
   Trim a VIDEO file version to a [start_sec, end_sec) window then crop
@@ -83,8 +83,8 @@ permissions:
 budget:
   # Deterministic pipeline runtime: budget is the sum of step tool
   # costs (trim_video_version=1 + crop_video_version=1). No LLM, no
-  # reflection-turn headroom. The validator's _budget_check sums
-  # across deterministic step tools — see scripts/validate.py.
+  # reflection-turn headroom. Budget-vs-cost checks now run
+  # backend-side on ingest (the old repo validator is retired).
   max_provider_calls: 2
   max_minutes: 6
   max_sub_runs: 0
