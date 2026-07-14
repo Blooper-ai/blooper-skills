@@ -28,21 +28,25 @@ all the options" pass that the user picks from later.
 >
 > *"Generate one file per provider: a misty pine forest at golden hour."*
 
-The skill calls `get_run_context` to learn the folder, then fans out
-one `generate_image` call per from-scratch image provider. Each call
-creates a new File in that folder.
+The skill calls `get_run_context` to learn the folder, reads the LIVE
+image-provider list from the registry via `describe_capabilities`, then
+fans out one `generate_image` call per provider. Each call creates a new
+File in that folder. The provider set is never hardcoded, so newly added
+providers are picked up automatically.
 
 ## Expected output
 
-- One new image File per from-scratch provider (today: FLUX.2 Max,
-  Nano Banana, OpenAI Image).
+- One new image File per from-scratch image provider (the live registry
+  set — e.g. FLUX.2 Max, Nano Banana 2, Nano Banana Pro, GPT Image 2,
+  Seedream 4.5, Seedream 5.0 Pro).
 - Each file is named after its provider so you can tell them apart at a
   glance in the folder grid.
 - No picker step — every result is kept.
 
 ## Budget
 
-- `max_provider_calls`: 6 — covers 3 providers plus retry slack.
+- `max_provider_calls`: 8 — covers the current provider set plus retry
+  slack. Bump it if the registry grows past ~7 providers.
 - `max_minutes`: 10.
 
 ## Limits and known issues

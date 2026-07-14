@@ -1,5 +1,5 @@
 slug: blooper-official/generate-in-all-providers-in-folder
-version: 1.1.0
+version: 1.2.0
 name: Generate one file per provider
 description: >
   Run the same prompt through every from-scratch image provider; each
@@ -15,6 +15,7 @@ applies_to: {}
 
 tools:
   - get_run_context
+  - describe_capabilities
   - generate_image
 
 params:
@@ -35,7 +36,10 @@ permissions:
   run: any_project_member
 
 budget:
-  max_provider_calls: 6
+  # One call per from-scratch image provider (6 today) plus retry slack. The
+  # provider set is read live from the registry, so this ceiling must comfortably
+  # cover the current count — bump it if the registry grows past ~7 providers.
+  max_provider_calls: 8
   max_minutes: 10
   max_sub_runs: 0
 
@@ -44,20 +48,17 @@ prompt: |
 
   Step 1: call get_run_context to learn project_id and folder_id (the current folder). If folder_id is null (the chat is anchored to a file, not a folder), tell the user this skill only runs from a folder chat — suggest they pick `generate-in-all-providers` (the on-file companion) instead — then stop.
 
-  Step 2: for EACH of these providers, in parallel where possible, call generate_image with:
+  Step 2: call describe_capabilities with output_type="IMAGE" to get the LIVE list of image providers from the registry (do NOT rely on a memorised list — the provider lineup changes). Fan out across EVERY provider in the returned `providers` array (they are all from-scratch image generators today). This is what keeps the skill current when providers are added or removed.
+
+  Step 3: for EACH provider from Step 2, in parallel where possible, call generate_image with:
     - prompt={{prompt}}
-    - provider=<the provider id>
+    - provider=<the provider's `id` from describe_capabilities>
     - folder_id=<the folder_id from Step 1>
-    - label="<provider display name> — <short prompt summary>"
+    - label="<the provider's `label` from describe_capabilities> — <short prompt summary>"
     (omit parent_version_id and target_file_id entirely — every call must create a NEW File)
-  Providers to fan out across (one call each):
-    - FLUX2_MAX           (display "FLUX.2 Max")
-    - NANO_BANANA         (display "Nano Banana")
-    - OPENAI_IMAGE        (display "OpenAI Image")
-    - SEEDREAM            (display "Seedream 4.5")
   Each call creates a NEW File in the folder; the new version on that file is the rendered output.
 
-  Step 3: once all calls return, summarise back to the user: one line per provider with the file_id and the provider display name. Do NOT promote any of them — they're all peers, the user decides which to keep.
+  Step 4: once all calls return, summarise back to the user: one line per provider with the file_id and the provider display name. Do NOT promote any of them — they're all peers, the user decides which to keep.
 
   Hard rules:
     - One call per provider. Do not loop or retry on the same provider.
