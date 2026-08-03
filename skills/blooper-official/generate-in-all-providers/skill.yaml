@@ -1,5 +1,5 @@
 slug: blooper-official/generate-in-all-providers
-version: 1.1.2
+version: 1.1.3
 name: Generate in all providers
 description: >
   Re-render THIS image in every available provider using the exact prompt that
@@ -39,7 +39,19 @@ permissions:
   run: any_project_member
 
 budget:
-  max_provider_calls: 12
+  # 16, not 12: compare_providers declares cost=8 in the BE tools registry (the
+  # worst case — every applicable provider in one output_type bucket) and its
+  # runtime charge is len(approved), taken at step 4 BEFORE the step-6 fan-out.
+  # So the charge is kept when a provider fails part way through, and a cap of
+  # 12 bought exactly one full-width attempt (8 spent, 4 left, the model's
+  # natural retry needs 8 again) — BudgetExceededError, which the executor
+  # treats as fatal. Size the cap at TWICE the declared cost so a first partial
+  # failure is retryable at the SAME width. This binds on the surfaces that set
+  # __no_budget_extension (sandbox "Try it", skill-author runs) and on a
+  # spawn-clamped child; on an ordinary run the billed ceiling is advisory and
+  # the wallet is the real bound. Reflection turns charge this counter nothing —
+  # only tool invocations do — so no headroom is needed for them.
+  max_provider_calls: 16
   # 30, not 10: the run PAUSES on the "pick the winning generation" choice and
   # HITL wall-clock counts toward the deadline (anchored at run start). The
   # onboarding guide sends users off to tour the version tree before they pick

@@ -41,8 +41,10 @@ seeds, references, and conditioning stay aligned across providers.
 
 ## Budget
 
-- `max_provider_calls`: 12 — comfortably covers 3–5 providers today plus
-  retry slack.
+- `max_provider_calls`: 16 — two full-width attempts at `compare_providers`
+  (declared cost 8, the every-provider worst case). The charge is taken before
+  the fan-out and kept if a provider fails part way, so a cap of one width plus
+  change would make the first partial failure fatal instead of retryable.
 - `max_minutes`: 30 — generous on purpose: the picker step pauses the run and
   HITL wall-clock counts toward the deadline (anchored at run start), so a
   user who goes off browsing the version tree before picking (the onboarding
