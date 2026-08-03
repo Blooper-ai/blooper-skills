@@ -41,15 +41,18 @@ seeds, references, and conditioning stay aligned across providers.
 
 ## Budget
 
-- `max_provider_calls`: 16 — two full-width attempts at `compare_providers`
-  (declared cost 8, the every-provider worst case). The charge is taken before
-  the fan-out and kept if a provider fails part way, so a cap of one width plus
-  change would make the first partial failure fatal instead of retryable.
+- `max_provider_calls`: 100 — this skill declines to set its own ceiling. The
+  fan-out is one call per applicable provider, read live from the registry, so
+  any snug figure expires the next time a provider is added; and because the
+  charge is taken before the fan-out and kept if a provider fails part way, too
+  snug a cap makes the first partial failure fatal rather than retryable. 100 is
+  the default of your account's own provider-call ceiling, which the runtime
+  applies as `min(your ceiling, this)` — so your account setting and your wallet
+  are what bound a run. A typical run spends one call per provider (3–5 today).
 - `max_minutes`: 30 — generous on purpose: the picker step pauses the run and
   HITL wall-clock counts toward the deadline (anchored at run start), so a
   user who goes off browsing the version tree before picking (the onboarding
   guide even tells them to) must not come back to a timed-out FAILED run.
-  Spend stays capped by `max_provider_calls`.
 
 ## Limits and known issues
 

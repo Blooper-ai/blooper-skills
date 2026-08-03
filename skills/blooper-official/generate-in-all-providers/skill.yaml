@@ -1,5 +1,5 @@
 slug: blooper-official/generate-in-all-providers
-version: 1.1.3
+version: 1.2.0
 name: Generate in all providers
 description: >
   Re-render THIS image in every available provider using the exact prompt that
@@ -39,24 +39,36 @@ permissions:
   run: any_project_member
 
 budget:
-  # 16, not 12: compare_providers declares cost=8 in the BE tools registry (the
-  # worst case — every applicable provider in one output_type bucket) and its
-  # runtime charge is len(approved), taken at step 4 BEFORE the step-6 fan-out.
-  # So the charge is kept when a provider fails part way through, and a cap of
-  # 12 bought exactly one full-width attempt (8 spent, 4 left, the model's
-  # natural retry needs 8 again) — BudgetExceededError, which the executor
-  # treats as fatal. Size the cap at TWICE the declared cost so a first partial
-  # failure is retryable at the SAME width. This binds on the surfaces that set
-  # __no_budget_extension (sandbox "Try it", skill-author runs) and on a
-  # spawn-clamped child; on an ordinary run the billed ceiling is advisory and
-  # the wallet is the real bound. Reflection turns charge this counter nothing —
-  # only tool invocations do — so no headroom is needed for them.
-  max_provider_calls: 16
+  # This manifest deliberately declines to be the cap. 100 is the DEFAULT of
+  # `User.skills_max_provider_calls`, and the executor binds
+  # min(user_cap, manifest_cap) — so at this figure the user's own ceiling and
+  # the wallet are what bound the run, while a user who lowered their ceiling
+  # still binds. There is no "unlimited" to write here: the field is an int with
+  # ge=0, so 0 would mean zero calls rather than no limit, and omitting the key
+  # would silently inherit the model default of 20 — a tighter cap wearing the
+  # look of an absent one.
+  #
+  # Why not a snug figure. compare_providers fans out one call per applicable
+  # provider and reads that set LIVE from the registry, so any number sized to
+  # today's provider count is a cap that expires the next time a provider is
+  # added. The failure mode is not overspend — this lane is billed, so on an
+  # ordinary run the ceiling is advisory and the wallet is the real bound — it is
+  # a run that dies. The charge is len(approved), taken at step 4 BEFORE the
+  # step-6 fan-out, so it is kept when a provider fails part way, and the model's
+  # natural retry is a whole second full-width charge. Under 12 (the previous
+  # figure, against a declared cost of 8) that retry raised
+  # BudgetExceededError, which is in the executor's fatal tuple: the first
+  # partial failure ended the run. That bit on the surfaces which set
+  # __no_budget_extension — the sandbox "Try it" and skill-author runs — and on a
+  # spawn-clamped child. Reflection turns charge this counter nothing; only tool
+  # invocations do.
+  max_provider_calls: 100
   # 30, not 10: the run PAUSES on the "pick the winning generation" choice and
   # HITL wall-clock counts toward the deadline (anchored at run start). The
   # onboarding guide sends users off to tour the version tree before they pick
   # — at 10 minutes the unanswered picker expired and the run died FAILED
-  # mid-tutorial. Provider spend is still capped by max_provider_calls.
+  # mid-tutorial. Provider spend is bounded by the user's own ceiling and the
+  # wallet, not by max_provider_calls above.
   max_minutes: 30
   max_sub_runs: 0
 
