@@ -1,5 +1,5 @@
 slug: blooper-official/storyboard-from-script
-version: 2.2.1
+version: 2.2.2
 name: Storyboard from script
 description: >
   Run the full v2 pipeline (5 LLM stages) on a TEXT script: scene partition →
@@ -44,13 +44,19 @@ permissions:
   run: any_project_member
 
 budget:
-  # generate_storyboard_from_script has cost=5 in the BE tools registry;
-  # the budget rule of thumb (validation now lives backend-side) flags
-  # anything below sum_of_costs + reflection headroom (~2). 8 covers the
-  # tool itself, the one reflection turn the LLM takes after the tool
-  # returns to write its summary message, and leaves headroom for an
-  # edge-case retry without bouncing onto a budget_extension approval.
-  max_provider_calls: 8
+  # generate_storyboard_from_script has cost=5 in the BE tools registry, and
+  # the charge is platform-funded (billed=False), which makes this cap a HARD
+  # ceiling on every run rather than an advisory counter: exceeding it raises
+  # BudgetExceededError, which the executor treats as fatal (no pause for a
+  # budget_extension approval). The cost is charged up front and deliberately
+  # KEPT when the pipeline raises part way through, since those stages really
+  # ran. So size the cap at TWICE the tool's cost, not once: 10 buys two full
+  # attempts, letting the model retry after a mid-pipeline provider failure.
+  # 8 would buy exactly one attempt (5 spent, 3 left, retry needs 5) and make
+  # the model's natural retry fatal. Reflection turns and LLM turns charge
+  # this counter nothing — only tool invocations do — so no headroom is
+  # needed for the summary message the LLM writes after the tool returns.
+  max_provider_calls: 10
   max_minutes: 45
   max_sub_runs: 0
 

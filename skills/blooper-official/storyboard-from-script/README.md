@@ -63,8 +63,10 @@ showing *your* exact cast instead of minting a duplicate cast of lookalikes.
 
 ## Budget
 
-- `max_provider_calls`: 8 — the pipeline tool (cost 5) plus reflection/retry
-  headroom.
+- `max_provider_calls`: 10 — two attempts at the pipeline tool (cost 5 each).
+  The charge is taken up front and kept if the pipeline fails part way, so a
+  cap of one tool cost plus change would make a retry fatal. Reflection turns
+  don't charge this counter, so they need no headroom.
 - `max_minutes`: 45 — long scripts can take a while.
 
 ## Limits and known issues
