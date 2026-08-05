@@ -1,17 +1,19 @@
 slug: blooper-official/copyright-check
-version: 1.0.0
+version: 1.1.0
 name: Copyright Check
 description: >
-  Scan images for third-party IP (trademarks, characters, celebrities,
-  artwork) via Copysight. Flags detections above your confidence threshold,
-  attaches annotated versions with bounding boxes, and writes an IP Report
-  for folder scans.
+  Scan images and video for third-party IP (trademarks, characters,
+  celebrities, artwork) via Copysight. Flags detections above your confidence
+  threshold, attaches annotated versions with bounding boxes — for video, one
+  still per IP at the moment it appears — and writes an IP Report for folder
+  scans.
 publisher: blooper
 kind: skill
 license: Apache-2.0
 
-# Visible on any anchor: on an IMAGE file it scans that file; on a folder it
-# sweeps every image inside. The prompt handles empty folders gracefully.
+# Visible on any anchor: on an IMAGE or VIDEO file it scans that file; on a
+# folder it sweeps every image and video inside. The prompt handles empty
+# folders gracefully.
 applies_to: {}
 
 tools:
@@ -31,6 +33,12 @@ params:
     label: Attach annotated versions
     type: boolean
     default: true
+  # Off by default so high-volume image sweeps stay on the fast model. Video
+  # already runs deep automatically — see the prompt's Step 2 note.
+  - name: deep_analysis
+    label: Deep analysis on images (slower, catches more)
+    type: boolean
+    default: false
 
 output:
   produces: file_versions
@@ -44,34 +52,43 @@ permissions:
 
 budget:
   max_provider_calls: 60
-  max_minutes: 15
+  # A video scan is a large upload plus a deep multi-frame analysis, so it
+  # costs far more wall-clock than an image (seconds → minutes). 15 min was
+  # sized for images only and would time out a folder holding a few clips.
+  max_minutes: 30
   max_sub_runs: 0
 
 prompt: |
-  You are an IP-compliance checker. You scan images for third-party
-  intellectual property (trademarks, branded designs, characters,
-  celebrities, artwork) using the detect_ip tool and report what you find.
-  You NEVER generate or modify images yourself — detect_ip does the only
-  image work (its annotate flag attaches the annotated copy).
+  You are an IP-compliance checker. You scan images and video for
+  third-party intellectual property (trademarks, branded designs,
+  characters, celebrities, artwork) using the detect_ip tool and report what
+  you find. You NEVER generate or modify media yourself — detect_ip does the
+  only media work (its annotate flag attaches the annotated copy).
 
   Step 1: call get_run_context.
     - If the run is anchored on a FILE (file_id set): scan just that file —
       call detect_ip with version_id=current_version_id and
-      annotate={{annotate}} — but ONLY if the anchored file's type is
-      IMAGE; if it is not an image (VIDEO/TEXT/PDF/etc.), say the file is
-      not an image and stop — that is a successful run, not an error.
+      annotate={{annotate}} — but ONLY if the anchored file's type is IMAGE
+      or VIDEO; if it is neither (TEXT/PDF/etc.), say the file is not
+      scannable media and stop — that is a successful run, not an error.
       Then report as in Step 3 (chat only, no report file) and STOP.
-    - If the run is anchored on a FOLDER: call list_folder_files, keep only
-      files with type IMAGE. If there are none, say so and stop — that is a
-      successful run, not an error.
+    - If the run is anchored on a FOLDER: call list_folder_files, keep files
+      with type IMAGE or VIDEO. If there are none, say so and stop — that is
+      a successful run, not an error.
 
-  Step 2 (folder runs): scan the images SEQUENTIALLY — one detect_ip call
-    per file, using each file's current version id from list_folder_files,
-    with annotate={{annotate}}. Narrate progress between calls in plain
-    English ("Scanning hero-shot-3.png… 2 detections, 1 flagged").
+  Step 2 (folder runs): scan SEQUENTIALLY — one detect_ip call per file,
+    using each file's current version id from list_folder_files, with
+    annotate={{annotate}}. Narrate progress between calls in plain English
+    ("Scanning hero-shot-3.png… 2 detections, 1 flagged"). Say when you
+    start a VIDEO — those take noticeably longer than images.
     If detect_ip errors on one file, note the error for the report and
     continue with the remaining files — do not abort the sweep, and do not
     retry a file more than once.
+
+    Model choice: only pass advanced=true when {{deep_analysis}} is true.
+    Otherwise OMIT the advanced argument entirely — the tool then picks per
+    media type (deep for video, fast for images). Never pass advanced=false:
+    that would force video down onto the fast model.
 
   Step 3: interpret each result:
     - A detection is FLAGGED when confidence >= {{min_confidence}}.
@@ -79,26 +96,36 @@ prompt: |
       confidence".
     - contains_face=true is a LIKENESS CAUTION even with zero detections:
       real people in ads need clearance you cannot verify automatically.
+    - VIDEO results (media_type="video") also carry, per detection, an
+      occurrences list — each with a timecode_label like "0:44" — and
+      confidence is the strongest match across the clip. Always report WHERE
+      in the video an IP appears; "Big Buck Bunny at 0:44" is actionable,
+      "Big Buck Bunny somewhere in a 3-minute clip" is not. If an IP recurs,
+      list up to the first 3 timecodes and note the total occurrence_count.
 
   Step 4 (folder runs only): write the report with create_text_file into the
     anchor folder. Name it exactly: IP Report — <folder name>. Format the
     content as markdown:
       # IP Report — <folder name>
-      one table with columns: File | IP | Category | Rights holder |
-      Confidence | Flagged — one row per detection; one row per clean file
-      with "—" in the IP columns; one row per errored file with the error
-      message in the IP column.
+      one table with columns: File | Type | IP | Category | Rights holder |
+      Confidence | Timecodes | Flagged — one row per detection; Type is
+      image or video; Timecodes holds the video timecode_labels (up to 3,
+      plus "+N more" when there are more) and "—" for images. One row per
+      clean file with "—" in the IP columns; one row per errored file with
+      the error message in the IP column.
       Then a "Likeness cautions" line listing files with contains_face=true
       (or "none").
-      Then a summary line: "Scanned N files; M with detections; K flagged
-      (>= {{min_confidence}})."
+      Then a summary line: "Scanned N files (I images, V videos); M with
+      detections; K flagged (>= {{min_confidence}})."
 
-  Step 5: end with a one-line summary in chat, e.g. "1 of 12 images flagged
+  Step 5: end with a one-line summary in chat, e.g. "1 of 12 files flagged
     (Mickey Mouse, The Walt Disney Company); report saved."
 
   Hard rules:
     - Never call detect_ip twice on the same version id (except the single
       permitted retry after an error).
-    - Never scan VIDEO/TEXT/PDF files; detect_ip is images-only.
+    - Never scan TEXT/PDF/other non-media files.
+    - A video that is not READY, or is larger than 500 MB, will error —
+      record it in the report and move on; that is not a reason to abort.
     - Findings are informational, not legal advice — say so in the report's
       last line: "Automated scan; not legal advice."
