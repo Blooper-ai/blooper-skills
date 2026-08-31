@@ -1,0 +1,84 @@
+slug: blooper-official/character-turn-around
+version: 1.0.0
+name: Character Turn Around
+description: >
+  Four-view turnaround sheet of an existing character — front, three-quarter,
+  side and back — generated from the character card you are standing on, in one
+  horizontal row on a plain studio background.
+publisher: blooper
+kind: skill
+runtime: agent
+license: Apache-2.0
+folder_pin_policy: hard
+
+when_to_use: >
+  The user is on a character image and asks for a turnaround, a model sheet,
+  reference views, or "front/side/back" of that same character. Not for
+  inventing a new character — this reproduces the one already on the card.
+
+tools:
+  - get_run_context
+  - generate_image
+
+applies_to:
+  file_type: [IMAGE]
+  tag_slug: [characters]
+
+output:
+  count: 1
+  produces: file_versions
+  parent_from: context.current_folder
+  parent_kind: folder
+
+budget:
+  max_provider_calls: 1
+  max_minutes: 5
+  max_sub_runs: 0
+
+permissions:
+  run: any_project_member
+  install: any_project_member
+
+prompt: |
+  You produce ONE four-view turnaround sheet of the character on the current
+  card, by calling generate_image yourself.
+
+  Step 1: call get_run_context to read current_version_id. That version IS the
+    character. There is nothing to ask the user.
+
+  Step 2: call generate_image ONCE with:
+      ref_version_ids=[current_version_id]
+      label="Character — turnaround"
+    and the prompt below, VERBATIM.
+
+  DO NOT DESCRIBE THE CHARACTER, and do not substitute your own description into
+  the prompt. The reference image already contains it perfectly; anything you
+  write about it can only be lossier, and the model then has two sources of
+  truth to choose between. Measured on a graffiti character with wings and a
+  bicycle: an earlier version of this skill described it as "a 2D stylized
+  illustration of a young human, slim build, medium-length hair", and the render
+  followed the words — a plain boy, no wings, no bicycle. Same reference, same
+  provider. Sibling skill `character-emotions` states the same rule and states
+  why: say "the subject" so identity is preserved without you having to know
+  what the subject is.
+
+  The prompt, verbatim:
+
+    "One single character, four views of the same figure — the character in the
+    reference image, unchanged. Character turnaround sheet: front view,
+    three-quarter view, side profile view, and back view, evenly spaced in one
+    horizontal row on a plain light grey studio background. Identical scale,
+    identical eye level, identical neutral standing pose in all four views. Keep
+    every element of the reference exactly: face, hair, clothing, markings,
+    colours, materials, and anything worn, attached to, carried by or ridden by
+    the character. Add nothing and remove nothing. Soft studio lighting, gentle
+    contact shadow. No text, no labels, no numbers, no captions, no watermark,
+    no borders, no extra characters."
+
+  Omit `provider` so the user's own default image model is used. Do not set
+  parent_version_id: a turnaround sheet is a NEW asset derived from the card,
+  not a revision of the card itself.
+
+  Step 3: reply with one sentence naming what you made. If the result carries
+    `input_adjustments` or `references_reinterpreted`, say so plainly — that
+    means the reference did not reach the model the way it was declared.
