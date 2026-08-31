@@ -48,6 +48,24 @@ skills/<publisher>/<skill-slug>/
 - `budget` - cap provider calls and minutes. Reviewers will push back on bloated budgets; start tight.
 - `license` - optional SPDX identifier. Allowed: `Apache-2.0` (default when omitted), `MIT`, `BSD-2-Clause`, `BSD-3-Clause`, `ISC`. Copyleft (GPL/LGPL/AGPL), SSPL, BSL/Elastic and other source-available or non-commercial licenses are rejected by the backend on ingest. See [`LICENSING.md`](./LICENSING.md) for the full policy.
 
+### Params: give every required param a `default` or a `prefill_from`
+
+A param that is required (`optional: false`) with **no `default` and no `prefill_from`** can only be filled by opening the skill's detail dialog. The composer's inline **Run** pill builds its payload from `default` values alone and sends `null` for everything else, which the backend rejects. Measured against this catalogue, 7 of 13 official skills currently have at least one such param.
+
+So, when you add a param:
+
+- Prefer a sensible `default`. It is what makes one-click Run work.
+- Use `prefill_from: context.current_version_id` / `context.current_file_id` / `context.current_folder_id` when `applies_to` already pins the thing you are asking for. Do not make the user paste a UUID the runtime already knows.
+- Only leave a param bare-required when there is genuinely no safe default (a free-text `prompt`, say), and accept that the skill is then dialog-only.
+
+One constraint that is easy to miss: **`prefill_from` fills a string.** The resolver assigns `str(value)`, so it works for `text` params and for `file_version`, but it cannot fill a `file_versions` param, which validates as `list[uuid.UUID]`. Prefilling a list-typed param is not currently possible — ask for it through the dialog.
+
+### Prompts: never ask an agent skill to describe a reference image
+
+If your skill hands a reference image to `generate_image`, do **not** add a step that first describes the character or scene in words. It reliably makes identity worse: the model follows your prose instead of the pixels, and whatever the description leaves out gets invented. A turnaround skill in this repo was roughly 1-in-2 on identity with a describe-then-generate step — one run produced a character missing the wings and bicycle that define it — and became consistent as soon as the describe step was deleted and the reference was passed straight through.
+
+Say what should be *done* with the reference, and say explicitly that it is not to be reinterpreted.
+
 ## Step 4 - Optional: ship a custom tool
 
 Most skills should compose existing built-in tools. If you genuinely need a new tool:
