@@ -1,11 +1,11 @@
-slug: blooper-official/character-turn-around
+slug: rukin/character-turn-around
 version: 1.0.0
 name: Character Turn Around
 description: >
   Four-view turnaround sheet of an existing character — front, three-quarter,
   side and back — generated from the character card you are standing on, in one
   horizontal row on a plain studio background.
-publisher: blooper
+publisher: rukin
 kind: skill
 runtime: agent
 license: Apache-2.0
