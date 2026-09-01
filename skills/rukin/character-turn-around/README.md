@@ -1,7 +1,10 @@
 # Character Turn Around
 
 Four views of the character you are standing on — front, three-quarter, side and
-back — in one horizontal row on a plain studio background, saved as a new asset.
+back — in one horizontal row on a plain studio background.
+
+The sheet is saved as a **new version of the character's own file**, not as a
+separate file beside it, so the version tree keeps showing where it came from.
 
 Run it from an IMAGE in the **Characters** tag. It takes no input: the card is
 the character.

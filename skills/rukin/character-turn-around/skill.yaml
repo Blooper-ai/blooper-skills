@@ -1,10 +1,10 @@
 slug: rukin/character-turn-around
-version: 2.2.0
+version: 2.3.0
 name: Character Turn Around
 description: >
   Four-view turnaround sheet of an existing character — front, three-quarter,
-  side and back — generated from the character card you are standing on, in one
-  horizontal row on a plain studio background.
+  side and back — in one horizontal row on a plain studio background. Lands as a
+  NEW VERSION of the character's own file, not as a separate file beside it.
 publisher: rukin
 kind: skill
 runtime: agent
@@ -27,8 +27,8 @@ applies_to:
 output:
   count: 1
   produces: file_versions
-  parent_from: context.current_folder
-  parent_kind: folder
+  parent_from: context.current_file
+  parent_kind: file
 
 budget:
   max_provider_calls: 1
@@ -48,6 +48,7 @@ prompt: |
 
   Step 2: call generate_image ONCE with:
       ref_version_ids=[current_version_id]
+      parent_version_id=current_version_id
       label="Character — turnaround"
     and the prompt below, VERBATIM.
 
@@ -75,9 +76,16 @@ prompt: |
     contact shadow. No text, no labels, no numbers, no captions, no watermark,
     no borders, no extra characters."
 
-  Omit `provider` so the user's own default image model is used. Do not set
-  parent_version_id: a turnaround sheet is a NEW asset derived from the card,
-  not a revision of the card itself.
+  Omit `provider` so the user's own default image model is used.
+
+  `parent_version_id` is what keeps the sheet ON the character's own file, as a
+  new VERSION under it, instead of minting a separate file beside it. An earlier
+  version of this skill said not to set it, on the reasoning that a turnaround
+  is a new asset rather than a revision of the card. That was wrong in practice:
+  it left the sheet as a loose file the character card did not point at, so the
+  version tree no longer showed where it came from. Sibling skill
+  `character-emotions` passes both the reference AND the parent for the same
+  reason.
 
   Step 3: reply with one sentence naming what you made. If the result carries
     `input_adjustments` or `references_reinterpreted`, say so plainly — that
