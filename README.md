@@ -49,6 +49,7 @@ The reference skills live under `skills/blooper-official/`. Each one is a real, 
 | `blooper-official/storyboard-from-script`      | Heavy LLM-pipeline skill wrapped behind a single runtime tool.            |
 | `blooper-official/timeline-generate-all`       | Batch fan-out of video generations with frame-accurate clip refs.         |
 | `blooper-official/export-file-history-pdf`     | One-tool provenance/history PDF export for the anchored file.             |
+| `blooper-official/where-is-this-file`          | Widget-only package — contributes an inspector panel and no run.          |
 
 ## Docs
 

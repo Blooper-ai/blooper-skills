@@ -1,0 +1,79 @@
+slug: blooper-official/where-is-this-file
+version: 1.0.0
+name: Where this file lives
+description: >
+  Adds a "Location" panel to the file inspector: the containers this file sits
+  inside, the files it was generated from (with thumbnails), and what else is in
+  the same container. Read-only — it renders what the project already knows and
+  never starts a run, so it costs nothing.
+publisher: blooper
+kind: skill
+license: Apache-2.0
+
+# A WIDGET-ONLY PACKAGE. `runnable: false` is what makes it one, and it is
+# AUTHORED rather than inferred: `runnable` defaults true so every existing
+# manifest keeps its run, and a package that only renders has to say so.
+#
+# The consequence is enforced rather than advisory — the platform refuses a run
+# for this package on every dispatch path (the trigger endpoint, an agent spawn,
+# and the Skill IDE's Try-it panel), and no surface offers one.
+runnable: false
+
+tools: []
+
+widgets:
+  - id: where-is-this-file
+    title: Location
+    elements:
+      - type: tree
+        label: Where this file lives
+        source: file_ancestry
+        empty_label: This file has no location yet.
+
+      - type: tree
+        label: Generated from
+        source: file_parents
+        empty_label: Not generated from other files.
+        previews: true
+
+      - type: tree
+        label: Also in here
+        source: sibling_files
+        empty_label: Nothing else is in here.
+        previews: true
+
+      - type: badge
+        label: Directly inside
+        value:
+          source: file_location
+          path: name
+        tone: brand
+        hide_when_empty: true
+
+      - type: text
+        label: Container type
+        value:
+          source: file_location
+          path: kind
+        tone: muted
+        hide_when_empty: true
+
+output:
+  produces: metadata_only
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  max_provider_calls: 0
+  max_minutes: 5
+  max_sub_runs: 0
+
+# REQUIRED BY THE SCHEMA EVEN THOUGH NOTHING READS IT HERE. `prompt` is read on
+# the run path, so relaxing it would be a change to run execution rather than to
+# the schema, and it is not worth coupling to this. `runnable: false` is what
+# stops every surface offering a run; this line is a placeholder that never
+# executes.
+prompt: |
+  This skill contributes an inspector panel and does not run.

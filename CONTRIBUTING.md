@@ -60,6 +60,55 @@ So, when you add a param:
 
 One constraint that is easy to miss: **`prefill_from` fills a string.** The resolver assigns `str(value)`, so it works for `text` params and for `file_version`, but it cannot fill a `file_versions` param, which validates as `list[uuid.UUID]`. Prefilling a list-typed param is not currently possible — ask for it through the dialog.
 
+### Widget-only skills: a package that renders and never runs
+
+A skill can contribute an **inspector panel** instead of (or as well as) a run.
+A package that only renders declares it:
+
+```yaml
+runnable: false
+tools: []
+widgets:
+  - id: where-is-this-file     # lowercase slug, unique within this manifest
+    title: Location            # <= 60 chars
+    elements:
+      - type: tree
+        label: Generated from
+        source: file_parents
+        previews: true
+```
+
+`runnable` defaults to **true**. That default is deliberate: every manifest
+written before widgets existed keeps its run, so the burden falls on the new
+shape to declare itself rather than on every existing package to re-declare
+what it always did. Two consequences follow:
+
+- declaring `widgets` alone does **not** make a package widget-only — a skill
+  may ship both a run and a panel, and that is a normal shape;
+- `runnable: false` with no `widgets` is **refused**, because it would be a
+  package reachable from nowhere.
+
+The platform enforces the declaration rather than trusting it. A run requested
+for a widget-only package is refused at the trigger endpoint, at an agent
+spawn, and in the Skill IDE's Try-it panel, and no surface offers one.
+
+A widget is **data, not code.** You pick elements (`text`, `badge`, `tree`) and
+bind them to platform-provided sources; you cannot ship a component, and you
+never choose layout, spacing or colour. Two rules that are easy to get wrong:
+
+- **there is no template syntax.** A `value` of `"{{provider}}"` renders those
+  exact characters to the user. To show data, use a binding —
+  `value: {source: ..., path: ...}`;
+- **a `tree` must name a source that yields one.** Bound to a scalar source the
+  element renders empty, and the manifest is refused at install.
+
+A source this build does not know makes the manifest non-installable, so a
+typo fails at install rather than rendering a blank row forever. The element
+and source vocabulary is in the manifest reference; `where-is-this-file` is the
+worked example.
+
+Widgets cost nothing — there is no prompt to execute and no provider call.
+
 ### Prompts: never ask an agent skill to describe a reference image
 
 If your skill hands a reference image to `generate_image`, do **not** add a step that first describes the character or scene in words. It reliably makes identity worse: the model follows your prose instead of the pixels, and whatever the description leaves out gets invented. A turnaround skill in this repo was roughly 1-in-2 on identity with a describe-then-generate step — one run produced a character missing the wings and bicycle that define it — and became consistent as soon as the describe step was deleted and the reference was passed straight through.
