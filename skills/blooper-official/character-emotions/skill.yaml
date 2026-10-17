@@ -1,5 +1,5 @@
 slug: blooper-official/character-emotions
-version: 1.8.0
+version: 1.8.1
 name: Character Emotions
 description: >
   Generate four expressive emotion variants of a character — saved as new
@@ -10,6 +10,7 @@ description: >
 publisher: blooper
 kind: skill
 license: Apache-2.0
+icon: icon.svg
 
 applies_to:
   file_type: ["IMAGE"]

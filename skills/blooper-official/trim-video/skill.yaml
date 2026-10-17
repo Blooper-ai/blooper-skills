@@ -1,5 +1,5 @@
 slug: blooper-official/trim-video
-version: 2.0.0
+version: 2.0.1
 name: Trim video
 description: >
   Trim a VIDEO file version to a given [start_sec, end_sec) range. Produces a
@@ -8,6 +8,7 @@ publisher: blooper
 kind: skill
 
 license: Apache-2.0
+icon: icon.svg
 applies_to:
   file_type: ["VIDEO"]
 

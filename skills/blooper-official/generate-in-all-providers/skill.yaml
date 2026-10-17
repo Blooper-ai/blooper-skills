@@ -1,5 +1,5 @@
 slug: blooper-official/generate-in-all-providers
-version: 1.2.0
+version: 1.2.1
 name: Generate in all providers
 description: >
   Re-render THIS image in every available provider using the exact prompt that
@@ -10,6 +10,7 @@ description: >
 publisher: blooper
 kind: skill
 license: Apache-2.0
+icon: icon.svg
 preinstall: true
 
 applies_to:

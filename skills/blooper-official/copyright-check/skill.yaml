@@ -1,5 +1,5 @@
 slug: blooper-official/copyright-check
-version: 1.1.0
+version: 1.1.1
 name: Copyright Check
 description: >
   Scan images and video for third-party IP (trademarks, characters,
@@ -10,6 +10,7 @@ description: >
 publisher: blooper
 kind: skill
 license: Apache-2.0
+icon: icon.svg
 
 # Visible on any anchor: on an IMAGE or VIDEO file it scans that file; on a
 # folder it sweeps every image and video inside. The prompt handles empty

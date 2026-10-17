@@ -1,5 +1,5 @@
 slug: blooper-official/timeline-generate-all
-version: 1.2.1
+version: 1.2.2
 name: Generate all timeline clips
 description: >
   Fan out one generate_video job per empty or image-only clip in a timeline.
@@ -8,6 +8,7 @@ publisher: blooper
 kind: skill
 
 license: Apache-2.0
+icon: icon.svg
 applies_to:
   folder_kind: ["timeline"]
 
