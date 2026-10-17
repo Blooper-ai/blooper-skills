@@ -1,5 +1,5 @@
 slug: blooper-official/render-timeline
-version: 2.0.0
+version: 2.0.1
 name: Render timeline
 description: >
   Render a Timeline to a single MP4 file via ffmpeg. Each call produces a new
@@ -8,6 +8,7 @@ publisher: blooper
 kind: skill
 
 license: Apache-2.0
+icon: icon.svg
 applies_to:
   folder_kind: ["timeline"]
 

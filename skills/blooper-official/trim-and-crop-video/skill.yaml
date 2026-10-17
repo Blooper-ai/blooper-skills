@@ -1,5 +1,5 @@
 slug: blooper-official/trim-and-crop-video
-version: 1.0.1
+version: 1.0.2
 name: Trim and crop video
 description: >
   Trim a VIDEO file version to a [start_sec, end_sec) window then crop
@@ -12,6 +12,7 @@ description: >
 publisher: blooper
 kind: skill
 license: Apache-2.0
+icon: icon.svg
 
 applies_to:
   file_type: ["VIDEO"]

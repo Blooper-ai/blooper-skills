@@ -1,5 +1,5 @@
 slug: blooper-official/where-is-this-file
-version: 1.0.0
+version: 1.0.1
 name: Where this file lives
 description: >
   Adds a "Location" panel to the file inspector: the containers this file sits
@@ -9,6 +9,7 @@ description: >
 publisher: blooper
 kind: skill
 license: Apache-2.0
+icon: icon.svg
 
 # A WIDGET-ONLY PACKAGE. `runnable: false` is what makes it one, and it is
 # AUTHORED rather than inferred: `runnable` defaults true so every existing

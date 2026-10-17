@@ -1,5 +1,5 @@
 slug: rukin/character-turn-around
-version: 2.3.0
+version: 2.3.1
 name: Character Turn Around
 description: >
   Four-view turnaround sheet of an existing character — front, three-quarter,
@@ -9,6 +9,7 @@ publisher: rukin
 kind: skill
 runtime: agent
 license: Apache-2.0
+icon: icon.svg
 folder_pin_policy: hard
 
 when_to_use: >

@@ -1,5 +1,5 @@
 slug: blooper-official/generate-in-all-providers-in-folder
-version: 1.2.0
+version: 1.2.1
 name: Generate one file per provider
 description: >
   Run the same prompt through every from-scratch image provider; each
@@ -11,6 +11,7 @@ description: >
 publisher: blooper
 kind: skill
 license: Apache-2.0
+icon: icon.svg
 applies_to: {}
 
 tools:
