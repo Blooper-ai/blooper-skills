@@ -1,0 +1,105 @@
+slug: blooper-official/remake-reel
+version: 0.1.0
+name: Remake a reel in another world
+description: >
+  Take a short video (an Instagram Reel link, or a video already in the
+  project), break it into its shots, and rebuild it shot by shot in a
+  different visual world — same performers, same moves, same timing, same
+  cuts, same sound; new setting, wardrobe, props and grade. The shot list is
+  shown for correction before anything is generated. The world is the
+  project's brief, decisions and References tag.
+publisher: blooper
+kind: skill
+license: Apache-2.0
+icon: icon.svg
+
+applies_to:
+  file_type:
+    - VIDEO
+
+tools:
+  - import_video_from_url
+  - analyze_reference_video
+  - trim_video_version
+  - save_as_new_file
+  - extract_video_frame
+  - generate_image
+  - copy_moves
+  - wait_for_generation
+  - list_tags
+  - create_tag
+  - list_files
+  - find_timelines_root
+  - create_timeline
+  - create_timeline_clip
+  - update_timeline_clip
+  - list_timeline_clips
+  - render_timeline
+  - wait_for_render
+  - add_soundtrack
+  - request_user_confirmation
+  - request_user_input
+
+params:
+  - name: source_url
+    label: Link to the reel
+    type: text
+    optional: true
+    placeholder: https://www.instagram.com/reel/...
+  - name: source_version_id
+    label: Or a video already in the project
+    type: file_version
+    source: project
+    optional: true
+    prefill_from: context.current_version_id
+  - name: world
+    label: The world to rebuild it in
+    type: text
+    optional: false
+    placeholder: e.g. MATR — an outdoor exoplanet expedition, cold desaturated field footage, acid-green accents
+  - name: aspect
+    label: Output shape
+    type: text
+    default: "9:16"
+    optional: true
+
+output:
+  produces: file_versions
+  count: dynamic
+
+permissions:
+  install: any_project_member
+  run: any_project_member
+
+budget:
+  # One copy_moves per shot plus one restyled still per shot; a 12-shot reel
+  # is ~24 paid calls. Headroom for the shot-1 comparison and a retry each.
+  max_provider_calls: 60
+  max_minutes: 90
+  max_sub_runs: 0
+
+prompt: |
+  You are remaking a short video in another world. The source is a BLUEPRINT: its shot list, durations, cut points, framing, camera movement, the performers and their blocking all carry over. Only the setting, wardrobe, props and grade change, to: {{world}}. The aim is a video that plays beat for beat against the original — side by side the cuts, the movement and the composition line up, and only the world looks different.
+
+  Work in these steps, and stop where it says STOP.
+
+  1. THE SOURCE. If {{source_url}} is a link, call import_video_from_url with it and use the version it returns. Otherwise use {{source_version_id}}. Call it SOURCE.
+
+  2. THE SHOTS. Call analyze_reference_video on SOURCE with transcribe=false. From its result write the shot list in plain words: one line per shot — number, start–end, length in seconds, shot size, angle, movement, subject. STOP: show the list with request_user_confirmation and ask whether to merge, split or drop any shot before you go on. Apply what they say to your list; do not re-run the analysis.
+
+  3. THE WORLD. Call list_tags and list_files on the References tag (and Characters / Locations if they exist). The images there ARE the world: keep their version ids as WORLD_REFS. If there are none, say so and STOP with request_user_input asking for two or three stills of the world.
+
+  4. ONE CLIP PER SHOT. If a "Shots" tag does not exist, create_tag it (VIDEO). For each shot in order: trim_video_version(SOURCE, start_sec, end_sec, for_reference=true), then save_as_new_file into the Shots tag named "Shot N". Keep each new VIDEO version id as SHOT[N].
+
+  5. REBUILD EACH SHOT. For each shot in order:
+     a. extract_video_frame(SHOT[N]) at its middle → FRAME[N].
+     b. generate_image with ref_version_ids = WORLD_REFS plus FRAME[N], landing in the Shots tag, with a prompt that keeps EXACTLY the frame's composition, framing, number of people, their poses and positions, and re-dresses the setting, wardrobe and props into the world, with the world's grade and light. Describe the world from {{world}}; do not name real people or brands. Wait for it (wait_for_generation) → STILL[N].
+     c. copy_moves(image=STILL[N], video=SHOT[N]) — the still's character and setting perform the shot's moves. Omit the provider unless the user named one. Wait for it → NEW[N].
+     d. If a provider refuses or the result is unusable, read the failure detail, change what it names (another model from `alternatives`, or a frame without the refused element) and try ONCE more; then move on and note the shot as missing.
+     On the FIRST shot only, STOP after c with request_user_confirmation: show NEW[1] beside SHOT[1] and ask whether to continue in this lane or try the shot another way (a different copy_moves provider). Do what they say, then carry on without stopping.
+
+  6. ASSEMBLE. find_timelines_root → create_timeline named after the source. For each shot in order, create_timeline_clip with NEW[N]; then update_timeline_clip so each clip's trimmed length equals the source shot's length exactly (trim the end, never the start). list_timeline_clips to confirm the order and lengths. render_timeline with aspect {{aspect}} and wait_for_render → RENDER.
+
+  7. THE SOUND. add_soundtrack(video_version_id=RENDER, audio_version_id=SOURCE) — the original's own sound under the new picture, same length.
+
+  8. REPORT. In plain words: how many shots, which lane rebuilt them, which shots are missing and why, where the result is (the timeline and the final version), and the one thing you would fix first. Never say a step ran if it did not.
